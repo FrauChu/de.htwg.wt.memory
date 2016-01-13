@@ -14,7 +14,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 import play.mvc.WebSocket;
 
-import de.htwg.memory.ui.TUI;
+import models.Listener;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import views.html.*;
@@ -31,7 +31,8 @@ public class Application extends Controller {
     public Result index(){
 		String email = session("email");
 		de.htwg.memory.logic.Controller controller = controllers.get(email);
-		return ok(views.html.index.render("HTWG Memory", controller, email));
+		de.htwg.memory.entities.Board board ) controller.getBoard();
+		return ok(views.html.index.render("HTWG Memory", board, email));
 		//"HTWG Memory", controller, email
 	}
 	
@@ -109,6 +110,18 @@ public class Application extends Controller {
 		}
 		
 	}
+    public static WebSocket<String> connectWebSocket() {
+        
+        return new WebSocket<String>() {
+
+            public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
+                String email = session("email");
+                de.htwg.memory.logic.Controller controller = controllers.get(email);
+            	new Listener(controller,out);
+            }
+
+        };
+    }
 	public static class User {
         public String email;
         public String password;

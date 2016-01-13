@@ -1,7 +1,77 @@
-@(message: String, controller:de.htwg.memory.logic.Controller, email:String)
+@(message: String, controller:de.htwg.memory.entities.Board, email:String)
 
 @main("Welcome to Play", "") {
+<script type='text/javascript' src='@routes.Assets.at("javascripts/index.js")'></script>
+<script type='text/javascript' src='@routes.Assets.at("javascripts/ajax.js")'></script>
+<link rel="stylesheet" href='@routes.Assets.at("stylesheets/Sudoku.css")' />
 
-    @play20.welcome(message, style = "Java")
+    <script language="JavaScript">
+		function setValue(row,column,value) {
+            $.post("/json/" + row + column + value, function (data) {
+                var msg = JSON.parse(data);
+                fill_grid(msg);
+            });
+        }
+		function setShowCandidates(row,column) {
+            $.post("/json/" + row + column, function (data) {
+                var msg = JSON.parse(data);
+                fill_grid(msg);
+            });
+        }
+
+    </script>
+	<nav class="navbar navbar-default" role="navigation">
+	  <!-- Brand and toggle get grouped for better mobile display -->
+	  <div class="navbar-header">
+	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	      <span class="sr-only">Toggle navigation</span>
+	      <span class="icon-bar"></span>
+	      <span class="icon-bar"></span>
+	      <span class="icon-bar"></span>
+	    </button>
+	  </div>
+
+	  <!-- Collect the nav links, forms, and other content for toggling -->
+	  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	    <ul class="nav navbar-nav">
+	      <li class="dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">File <b class="caret"></b></a>
+	        <ul class="dropdown-menu">
+	          <li><a href="/command/n">New</a></li>
+	           <li class="divider"></li>
+	          <li><a href="#">Save</a></li>
+	          <li><a href="#">Load</a></li>
+	          <li class="divider"></li>
+	          <li><a href="#">Quit</a></li>
+	        </ul>
+	      </li>
+
+	      <li class="dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
+	        <ul class="dropdown-menu">
+	          <li><a href="/command/z">Undo</a></li>
+	          <li><a href="/command/y">Redo</a></li>
+	           <li class="divider"></li>
+	          <li><a href="/command/c">Copy</a></li>
+	          <li><a href="/command/v">Paste</a></li>
+	        </ul>
+	      </li>
+
+	      <li class="dropdown">
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Solve <b class="caret"></b></a>
+	        <ul class="dropdown-menu">
+	          <li><a href="/command/s">Solve</a></li>
+	        </ul>
+	      </li>
+
+	     
+	   <div class="col-md-1"></div>
+	   <div class="col-md-3"><p>To see candidates for a cell, click on the cell. To set a value for a cell, double-click on the candidate.</p>
+	   		<div id="wsLog"></div>
+	   </div>
+
+    </div>
+</div>
+
 
 }
