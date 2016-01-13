@@ -3,21 +3,12 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index()
-
-
-GET		/login					controllers.Application.login()
-POST	/login					controllers.Application.authenticate()
-GET		/memory/:command		controllers.Application.memory(command: String)
-
-GET		/signup					controllers.Application.signupForm()
-POST	/signup					@controllers.Application.signup()
-#GET		/command/:commandline	controllers.Application.commandline(commandline:String)
-#POST	/json/:commandline		controllers.Application.jsonCommand(commandline:String)
-#GET		/socket					controllers.Application.connectWebSocket()
-
-GET		/openID/auth			controllers.Application.auth()
-GET		/openID/verify			@controllers.Application.verify()
+GET        /                    @controllers.Application.index
+GET        /userAware           @controllers.Application.userAware
+GET        /only-twitter        @controllers.Application.onlyTwitter
+GET        /link-result         @controllers.Application.linkResult
+GET        /current-user        @controllers.Application.currentUser
 
 # Map static resources from the /public folder to the /assets URL path
-GET		/assets/*file			controllers.Assets.at(path="/public", file)
+GET        /assets/*file        controllers.Assets.at(path="/public", file)
+->         /auth                securesocial.Routes

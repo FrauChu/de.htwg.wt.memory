@@ -1,133 +1,62 @@
-@(message: String, controller:de.htwg.memory.logic.Controller, email:String)
+@(user: service.DemoUser, env: securesocial.core.RuntimeEnvironment)
+@import securesocial.core.IdentityProvider
+@import securesocial.core.AuthenticationMethod._
+@import Http.Context.Implicit
 
-@main("Welcome to Play", "") {
-<script type='text/javascript' src='@routes.Assets.at("javascripts/index.js")'></script>
-<script type='text/javascript' src='@routes.Assets.at("javascripts/ajax.js")'></script>
-<link rel="stylesheet" href='@routes.Assets.at("stylesheets/Sudoku.css")' />
+@main("SecureSocial - Sample Protected Page") {
+<div class="page-header">
+    <h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName</h2>
+</div>
 
-    <script language="JavaScript">
-		function setValue(row,column,value) {
-            $.post("/json/" + row + column + value, function (data) {
-                var msg = JSON.parse(data);
-                fill_grid(msg);
-            });
+<div class="clearfix">
+    <h2>User Details</h2>
+
+    <ul>
+        <li>User Id: @user.main.userId</li>
+        <li>Logged in from: @user.main.providerId</li>
+        <li>Fist name: @user.main.firstName</li>
+        <li>Last name: @user.main.lastName</li>
+        <li>Full name: @user.main.fullName</li>
+        <li>Email: @user.main.email.map { email => @email }.getOrElse("Not Available")</li>
+        <li>Authentication method: @user.main.authMethod</li>
+    </ul>
+
+    @user.main.oAuth1Info.map { info =>
+    <h2>OAuth1 Info</h2>
+
+    <ul>
+        <li>Token: @info.token</li>
+        <li>Secret: @info.secret</li>
+    </ul>
+    }
+
+    @user.main.oAuth2Info.map { info =>
+    <h2>OAuth2 Info</h2>
+
+    <ul>
+        <li>Access Token: @info.accessToken</li>
+        @info.tokenType.map { t => <li>Token Type: @t</li> }
+        @info.expiresIn.map { exp => <li>Expires in: @exp seconds</li>}
+        @info.refreshToken.map { rt => <li>Refresh Token: @rt</li>}
+    </ul>
+    }
+    <hr>
+    @user.main.passwordInfo.map { info =>
+	<a class="btn" href="@env.routes.passwordChangeUrl(Implicit.ctx()._requestHeader())">Change Password</a>
+    }
+
+     <span>Link this account to
+
+    @env.providers.values.map { provider =>
+        @if( provider.authMethod == OAuth1 || provider.authMethod == OAuth2 ) {
+            @defining( "images/providers/%s.png".format(provider.id) ) { imageUrl =>
+            <a href="@env.routes.authenticationUrl(provider.id, Some("/link-result"))"> <img src="@securesocial.controllers.routes.Assets.at(imageUrl)"/></a>
+         }
         }
-		function pickCard(row,column) {
-            $.post("/pick/" + row + column, function (data) {
-                var msg = JSON.parse(data);
-                fill_grid(msg);
-            });
-        }
+    }
+    </span>
 
-    </script>
-	<nav class="navbar navbar-default" role="navigation">
-	  <!-- Brand and toggle get grouped for better mobile display -->
-	  <div class="navbar-header">
-	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-	      <span class="sr-only">Toggle navigation</span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	    </button>
-	  </div>
-
-	  <!-- Collect the nav links, forms, and other content for toggling -->
-	  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-	    <ul class="nav navbar-nav">
-	      <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">File <b class="caret"></b></a>
-	        <ul class="dropdown-menu">
-	          <li><a href="/command/n">New</a></li>
-	           <li class="divider"></li>
-	          <li><a href="#">Save</a></li>
-	          <li><a href="#">Load</a></li>
-	          <li class="divider"></li>
-	          <li><a href="#">Quit</a></li>
-	        </ul>
-	      </li>
-
-	      <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
-	        <ul class="dropdown-menu">
-	          <li><a href="/command/z">Undo</a></li>
-	          <li><a href="/command/y">Redo</a></li>
-	           <li class="divider"></li>
-	          <li><a href="/command/c">Copy</a></li>
-	          <li><a href="/command/v">Paste</a></li>
-	        </ul>
-	      </li>
-
-	      <li class="dropdown">
-	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Solve <b class="caret"></b></a>
-	        <ul class="dropdown-menu">
-	          <li><a href="/command/s">Solve</a></li>
-	        </ul>
-	      </li>
-
-	     
-	   <div class="col-md-1"></div>
-	   <div class="col-md-3"><p>To see candidates for a cell, click on the cell. To set a value for a cell, double-click on the candidate.</p>
-	   		<div id="wsLog"></div>
-	   </div>
-
-    </div>
+    <hr>
+    <a class="btn" href="@securesocial.controllers.routes.LoginPage.logout()">Logout</a>
 </div>
-val board = controller.getBoard()
-<div class="game">
-	<div class="grid">
-		@for(row <- 0 until board.getHeight){
-			<div class="gridrow">
-				@for(column <- 0 until board.getWidth){
-					<span id="@{row + "" + column}">
-						<span class="cellouter" @if(!controller.isShowCandidates(row,column)){onclick="setShowCandidates(@row,
-						@column)"}>
-							<span
-							@{
-								if (controller.isGiven(row, column)) {
-									"id=given"
-								} else {
-									if (controller.isHighlighted(row, column)) {
-										"id=highlighted"
-									} else {
-										"id=normal"
-									}
-								}
-							}
-							class="cellborder">
-								<div class="cell"><font size="8"> @if(controller.getValue(row,column) != 0) {@controller.getValue(row,column)}</font>
-									@if(controller.getValue(row,column) == 0) {
-										@if(controller.isShowCandidates(row, column)) {
-											<span class="candidate" align="center">
-												@for( i <- 1 to controller.getCellsPerRow) {
-													@if(i % controller.getBlockSize == 1) {
-														<span>
-													}
-													<div class="candidatecell" ondblclick="setValue(@row,@column,@i)">
-														<p class="candidatetext">
-															@if(controller.isCandidate(row, column,i)) {@i}
-														</p>
-													</div>
-													@if(i % controller.getBlockSize == 0) {
-														</span>
-													}
-												}
-											</span>
-										} else {
-											 &nbsp;
-										}
-									}
-								</div>
-							</span>
-						</span>
-					</span>
-				}
-			</div>
-		}
-	</div>
-</div>
-<div class="statusline">
-		@controller.getStatus()
-</div>
-
-
 }

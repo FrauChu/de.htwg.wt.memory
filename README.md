@@ -1,1 +1,0 @@
-# de.htwg.wt.memory 

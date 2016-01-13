@@ -11,3 +11,4 @@ target
 project/.sbtserver*
 /RUNNING_PID
 /bin/
+/conf/oauth_tokens.conf

@@ -1,178 +1,115 @@
+/**
+ * Copyright 2012-214 Jorge Aliss (jaliss at gmail dot com) - twitter: @jaliss
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package controllers;
 
-import play.*;
-
-import play.mvc.*;
-import play.data.DynamicForm;
-import play.data.Form;
+import com.google.inject.Inject;
+import play.Logger;
 import play.libs.F;
-import play.libs.Json;
-//import play.libs.OpenID;
 import play.mvc.Controller;
-import play.mvc.Http.Context;
 import play.mvc.Result;
-import play.mvc.Security;
-import play.mvc.WebSocket;
+import securesocial.core.BasicProfile;
+import securesocial.core.RuntimeEnvironment;
+import securesocial.core.java.SecureSocial;
+import securesocial.core.java.SecuredAction;
+import securesocial.core.java.UserAwareAction;
+import service.DemoUser;
+import views.html.index;
+import views.html.linkResult;
 
-import models.Listener;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import views.html.*;
-import java.nio.file.SecureDirectoryStream;
-import java.util.*;
-import java.io.File;
-
+/**
+ * A sample controller
+ */
 public class Application extends Controller {
+    public static Logger.ALogger logger = Logger.of("application.controllers.Application");
+    private RuntimeEnvironment env;
 
-	private static Map<String, de.htwg.memory.logic.Controller> controllers = new HashMap<>();
-	private static Map<String, String> userDB = new HashMap<>();
-	
-	@play.mvc.Security.Authenticated(Secured.class)
-    public Result index(){
-		String email = session("email");
-		de.htwg.memory.logic.Controller controller = controllers.get(email);
-		de.htwg.memory.entities.Board board = controller.getBoard();
-		de.htwg.memory.entities.
-		return ok(views.html.index.render("HTWG Memory", board, email));
-		//"HTWG Memory", controller, email
-	}
-	
-	
-	public Result memory(String command) {
-    	TUI tui = new TUI();
-    	tui.processInputLine(command);
-        return ok(tui.toString());
+    /**
+     * A constructor needed to get a hold of the environment instance.
+     * This could be injected using a DI framework instead too.
+     *
+     * @param env
+     */
+    @Inject()
+    public Application (RuntimeEnvironment env) {
+        this.env = env;
     }
-    public Result login() {
-        return ok( views.html.login.render(Form.form(User.class)));
-    }
-    
-    public Result signupForm() {
-        return ok(views.html.signup.render(Form.form(User.class)));
-    }
-    
-    public Result authenticate() {
-        Form<User> loginform = DynamicForm.form(User.class).bindFromRequest();
+    /**
+     * This action only gets called if the user is logged in.
+     *
+     * @return
+     */
 
-        User user = User.authenticate(loginform.get());
+    @SecuredAction
+    public Result index() {
+        if(logger.isDebugEnabled()){
+            logger.debug("access granted to index");
+        }
+        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
+        return ok(index.render(user, SecureSocial.env()));
+    }
 
-        if (loginform.hasErrors() || user == null) {
-            ObjectNode response = Json.newObject();
-            response.put("success", false);
-            response.put("errors", loginform.errorsAsJson());
-            if (user == null) {
-                flash("errors", "Wrong username or password");
+    @UserAwareAction
+    public Result userAware() {
+        DemoUser demoUser = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
+        String userName ;
+        if ( demoUser != null ) {
+            BasicProfile user = demoUser.main;
+            if ( user.firstName().isDefined() ) {
+                userName = user.firstName().get();
+            } else if ( user.fullName().isDefined()) {
+                userName = user.fullName().get();
+            } else {
+                userName = "authenticated user";
             }
-
-            return badRequest(views.html.login.render(loginform));
         } else {
-            session().clear();
-            session("email", user.email);
-            String email = session("email");
-            de.htwg.memory.logic.Controller controller= de.htwg.memory.logic.Controller.getController();
-            controllers.put(email,controller );
-            return redirect(routes.Application.index());
+            userName = "guest";
         }
+        return ok("Hello " + userName + ", you are seeing a public page");
     }
-    
-    public Result signup() {
-        Form<User> loginform = DynamicForm.form(User.class).bindFromRequest();
 
-        ObjectNode response = Json.newObject();
-        User account = loginform.get();
-        boolean exists = userDB.containsKey(account.email);
+    @SecuredAction(authorization = WithProvider.class, params = {"twitter"})
+    public Result onlyTwitter() {
+        return ok("You are seeing this because you logged in using Twitter");
+    }
 
-        if (loginform.hasErrors() || exists) {
-            response.put("success", false);
-            response.put("errors", loginform.errorsAsJson());
-            if (exists) {
-                flash("errors", "Account already exists");
+    @SecuredAction
+    public Result linkResult() {
+        DemoUser current = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
+        return ok(linkResult.render(current, current.identities));
+    }
+
+    /**
+     * Sample use of SecureSocial.currentUser. Access the /current-user to test it
+     */
+    public F.Promise<Result> currentUser() {
+        return SecureSocial.currentUser(env).map( new F.Function<Object, Result>() {
+            @Override
+            public Result apply(Object maybeUser) throws Throwable {
+                String id;
+
+                if ( maybeUser != null ) {
+                    DemoUser user = (DemoUser) maybeUser;
+                    id = user.main.userId();
+                } else {
+                    id = "not available. Please log in.";
+                }
+                return ok("your id is " + id);
             }
-
-            return badRequest(views.html.signup.render(loginform));
-        } else {
-            userDB.put(loginform.get().email, loginform.get().password);
-            session().clear();
-            session("email", loginform.get().email);
-            return redirect(routes.Application.index());
-        }
+        });
     }
-    
-	public static class Secured extends Security.Authenticator {
-		
-		@Override
-		public String getUsername(Context context){
-			return context.session().get("email");
-		}
-		@Override
-		public Result onUnauthorized(Context context)
-		{
-			return redirect(routes.Application.login());
-		}
-		
-	}
-    public static WebSocket<String> connectWebSocket() {
-        
-        return new WebSocket<String>() {
-
-            public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
-                String email = session("email");
-                de.htwg.memory.logic.Controller controller = controllers.get(email);
-            	new Listener(controller,out);
-            }
-
-        };
-    }
-	public static class User {
-        public String email;
-        public String password;
-
-        public User() { }
-
-        private User(final String email, final String password) {
-            this.email = email;
-            this.password = password;
-        }
-
-     	public static User authenticate(User user){
-     	    if (user != null && userDB.containsKey(user.email) && userDB.get(user.email).equals(user.password)) {
-     	        return new User(user.email, user.password);
-     	    }
-
-    	    return null;
-    	}
-   }
-	
-	public Result auth() {
-		/* TODO
-        String providerUrl = "https://www.google.com/accounts/o8/id";
-        String returnToUrl = "http://localhost:9000/openID/verify";
-
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put("Email", "http://schema.openid.net/contact/email");
-        attributes.put("FirstName", "http://schema.openid.net/namePerson/first");
-        attributes.put("LastName", "http://schema.openid.net/namePerson/last");
-
-        F.Promise<String> redirectUrl = OpenID.redirectURL(providerUrl, returnToUrl, attributes);
-        return redirect(redirectUrl.get());
-        */
-        return redirect(
-                routes.Application.index()
-        );
-    }
-
-    public Result verify() {
-    	/* TODO
-        F.Promise<OpenID.UserInfo> userInfoPromise = OpenID.verifiedId();
-        OpenID.UserInfo userInfo = userInfoPromise.get();
-        session().clear();
-        session("email", userInfo.attributes.get("Email"));
-        */
-        return redirect(
-                routes.Application.index()
-        );
-    }
-
 }
-
-
