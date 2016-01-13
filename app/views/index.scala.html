@@ -1,4 +1,4 @@
-@(message: String, controller:de.htwg.memory.entities.Board, email:String)
+@(message: String, controller:de.htwg.memory.logic.Controller, email:String)
 
 @main("Welcome to Play", "") {
 <script type='text/javascript' src='@routes.Assets.at("javascripts/index.js")'></script>
@@ -12,8 +12,8 @@
                 fill_grid(msg);
             });
         }
-		function setShowCandidates(row,column) {
-            $.post("/json/" + row + column, function (data) {
+		function pickCard(row,column) {
+            $.post("/pick/" + row + column, function (data) {
                 var msg = JSON.parse(data);
                 fill_grid(msg);
             });
@@ -71,6 +71,62 @@
 	   </div>
 
     </div>
+</div>
+val board = controller.getBoard()
+<div class="game">
+	<div class="grid">
+		@for(row <- 0 until board.getHeight){
+			<div class="gridrow">
+				@for(column <- 0 until board.getWidth){
+					<span id="@{row + "" + column}">
+						<span class="cellouter" @if(!controller.isShowCandidates(row,column)){onclick="setShowCandidates(@row,
+						@column)"}>
+							<span
+							@{
+								if (controller.isGiven(row, column)) {
+									"id=given"
+								} else {
+									if (controller.isHighlighted(row, column)) {
+										"id=highlighted"
+									} else {
+										"id=normal"
+									}
+								}
+							}
+							class="cellborder">
+								<div class="cell"><font size="8"> @if(controller.getValue(row,column) != 0) {@controller.getValue(row,column)}</font>
+									@if(controller.getValue(row,column) == 0) {
+										@if(controller.isShowCandidates(row, column)) {
+											<span class="candidate" align="center">
+												@for( i <- 1 to controller.getCellsPerRow) {
+													@if(i % controller.getBlockSize == 1) {
+														<span>
+													}
+													<div class="candidatecell" ondblclick="setValue(@row,@column,@i)">
+														<p class="candidatetext">
+															@if(controller.isCandidate(row, column,i)) {@i}
+														</p>
+													</div>
+													@if(i % controller.getBlockSize == 0) {
+														</span>
+													}
+												}
+											</span>
+										} else {
+											 &nbsp;
+										}
+									}
+								</div>
+							</span>
+						</span>
+					</span>
+				}
+			</div>
+		}
+	</div>
+</div>
+<div class="statusline">
+		@controller.getStatus()
 </div>
 
 

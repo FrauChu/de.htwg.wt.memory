@@ -31,7 +31,8 @@ public class Application extends Controller {
     public Result index(){
 		String email = session("email");
 		de.htwg.memory.logic.Controller controller = controllers.get(email);
-		de.htwg.memory.entities.Board board ) controller.getBoard();
+		de.htwg.memory.entities.Board board = controller.getBoard();
+		de.htwg.memory.entities.
 		return ok(views.html.index.render("HTWG Memory", board, email));
 		//"HTWG Memory", controller, email
 	}
