@@ -17,7 +17,7 @@
     </style>
 
 	<div class="page-header">
-		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName</h2>
+		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{user.main.fullName.getOrElse{""}}</h2>
 	</div>
 
 	<div class="clearfix">

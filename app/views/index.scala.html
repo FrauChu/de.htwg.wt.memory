@@ -5,7 +5,7 @@
 
 @main("SecureSocial - Sample Protected Page") {
 <div class="page-header">
-    <h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName</h2>
+    <h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{user.main.fullName.getOrElse{""}}</h2>
 </div>
 
 <div class="clearfix">
@@ -16,7 +16,7 @@
         <li>Logged in from: @user.main.providerId</li>
         <li>Fist name: @user.main.firstName</li>
         <li>Last name: @user.main.lastName</li>
-        <li>Full name: @user.main.fullName</li>
+        <li>Full name: @user.main.fullName.map { email => @email }.getOrElse("User")</li>
         <li>Email: @user.main.email.map { email => @email }.getOrElse("Not Available")</li>
         <li>Authentication method: @user.main.authMethod</li>
     </ul>
