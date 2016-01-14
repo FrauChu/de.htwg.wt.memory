@@ -17,10 +17,12 @@
 package controllers;
 
 import com.google.inject.Inject;
+
 import play.Logger;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import securesocial.core.AuthenticationMethod;
 import securesocial.core.BasicProfile;
 import securesocial.core.RuntimeEnvironment;
 import securesocial.core.java.SecureSocial;
@@ -29,13 +31,14 @@ import securesocial.core.java.UserAwareAction;
 import service.DemoUser;
 import views.html.index;
 import views.html.linkResult;
-
+import views.html.start;
+import views.html.game;
 
 /**
  * A sample controller
  */
 public class Application extends Controller {
-    public static Logger.ALogger logger = Logger.of("application.controllers.Application");
+	public static Logger.ALogger logger = Logger.of("application.controllers.Application");
     private RuntimeEnvironment env;
 
     /**
@@ -60,7 +63,16 @@ public class Application extends Controller {
             logger.debug("access granted to index");
         }
         DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        return ok(index.render(user, SecureSocial.env()));
+        return ok(start.render(user, SecureSocial.env()));
+    }
+
+    @SecuredAction
+    public Result play(String gameName) {
+        if(logger.isDebugEnabled()){
+            logger.debug("access granted to index");
+        }
+        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
+        return ok(game.render(user, SecureSocial.env(), gameName));
     }
 
     @UserAwareAction
