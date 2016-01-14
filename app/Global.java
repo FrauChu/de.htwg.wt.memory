@@ -33,5 +33,5 @@ public class Global extends GlobalSettings {
             result = super.getControllerInstance(controllerClass);
         }
         return result;
-    }*/
+    } */
 }
