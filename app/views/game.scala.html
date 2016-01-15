@@ -3,20 +3,43 @@
 @import securesocial.core.AuthenticationMethod._
 @import Http.Context.Implicit
 
-@main("Welcome Page") {
-	<div class="page-header">
-		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{user.main.fullName.getOrElse{""}}</h2>
-	</div>
+<!DOCTYPE html>
 
-	<div class="clearfix">
-		<h2>Welcome to the Lobby "@lobby"</h2>
-		
-		Yay
-		
-		<hr>
-		
-		<a class="btn" href="/">Main-Menu</a>
+<html>
+    <head>
+		<meta charset="utf-8">
+        <title>Memory</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("bootstrap/css/bootstrap.min.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
-		</span>
-	</div>
-}
+		<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+		<link rel="import" href="elements/game-elem.html">
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <span class="brand" >Memory</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container" style="padding-top:30px">
+			<div class="page-header">
+				<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{user.main.fullName.getOrElse{""}}</h2>
+			</div>
+
+			<div class="clearfix">
+				<h2>Welcome to the Lobby "@lobby"</h2>
+				
+				<game-elem owner="@lobby"></game-elem>
+				
+				<hr>
+				
+				<a class="btn" href="/">Main-Menu</a>
+
+				</span>
+			</div>
+        </div>
+    </body>
+</html>

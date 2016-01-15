@@ -16,6 +16,10 @@
  */
 package controllers;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import com.google.inject.Inject;
 
 import play.Logger;
@@ -103,6 +107,18 @@ public class Application extends Controller {
     public Result linkResult() {
         DemoUser current = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
         return ok(linkResult.render(current, current.identities));
+    }
+    
+    public Result fileLoad(String rootPath, String file) {
+    	String cont = "";
+    	try {
+	    	File reqFile = new File(rootPath, file);
+	    	BufferedReader br = new BufferedReader(new FileReader(reqFile));
+	    	String line = "";
+	    	while ((line = br.readLine()) != null)
+	    			cont += line + "\n";
+    	} catch (Exception e) {}
+    	return ok(cont);
     }
 
     /**

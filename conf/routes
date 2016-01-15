@@ -10,6 +10,10 @@ GET        /only-twitter        @controllers.Application.onlyTwitter
 GET        /link-result         @controllers.Application.linkResult
 GET        /current-user        @controllers.Application.currentUser
 
+# Map reuests form elements and bower_components
+GET        /elements/*file          controllers.Application.fileLoad(rootPath="app/elements", file)
+GET        /bower_components/*file  controllers.Application.fileLoad(rootPath="bower_components", file)
+
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file        controllers.Assets.at(path="/public", file)
-->         /auth                securesocial.Routes
+GET        /assets/*file            controllers.Assets.at(path="/public", file)
+->         /auth                    securesocial.Routes
