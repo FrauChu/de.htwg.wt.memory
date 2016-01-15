@@ -12,3 +12,4 @@ project/.sbtserver*
 /RUNNING_PID
 /bin/
 /conf/oauth_tokens.conf
+bower_components
