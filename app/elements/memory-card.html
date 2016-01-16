@@ -1,0 +1,68 @@
+<link rel="import"
+      href="/bower_components/polymer/polymer.html">
+<!-- import the iron-input custom element -->
+<link rel="import"
+      href="/bower_components/iron-image/iron-image.html">
+
+<dom-module name="memory-card" attributes="posx posy memboardid">
+
+  <template>
+  	<iron-image style="width:100px; height:100px; background-color: lightgray;"
+  		sizing="cover" preload fade src="/assets/images/animals/{{cardnumber}}.jpg"></iron-image>
+  </template>
+
+  <script>
+	Polymer({
+		is: "memory-card",
+		properties: {
+			posx: {
+				type: Number,
+				value: 0
+			},
+			posy: {
+				type: Number,
+				value: 0
+			},
+			reload: {
+				type: Number,
+				value: 0
+			},
+			cardnumber: {
+				type: String,
+				computed: 'getCard(posx, posy, reload)'
+			},
+			memboardid: {
+				type: String,
+				observer: 'memboardIdChanged'
+			}
+		},
+		listeners: {
+			'click': 'clickHandler'
+		},
+		memboardIdChanged: function() {
+			memboard = document.querySelector('#' + this.memboardid);
+			//alert("Got memboard " + memboard);
+			if (memboard) {
+				this.socket = memboard.socket;
+			}
+		},
+		getCard: function() {
+			if (this.socket) {
+				return this.socket.getCard(this.posx, this.posy);
+			}
+			return "";
+		},
+		ready: function() {
+			if (!this.game) {
+				this.game = "animals";
+			}
+			this.reload++;
+		},
+		clickHandler: function() {
+			this.socket.pick(this.posx, this.posy);
+		}
+	});
+  </script>
+
+</dom-module>
+

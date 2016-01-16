@@ -4,7 +4,9 @@
 
 # Home page
 GET        /                    @controllers.Application.index
-GET        /play                @controllers.Application.play(gameName: String ?= "default")
+GET        /play/board          @controllers.Game.getBoard(gameName: String ?= "")
+GET        /play/card/:x/:y		@controllers.Game.getCard(gameName: String ?= "", x: Int, y: Int)
+GET        /play                @controllers.Game.play(gameName: String ?= "")
 GET        /userAware           @controllers.Application.userAware
 GET        /only-twitter        @controllers.Application.onlyTwitter
 GET        /link-result         @controllers.Application.linkResult

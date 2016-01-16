@@ -13,7 +13,7 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
 		<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-		<link rel="import" href="elements/game-elem.html">
+		<link rel="import" href="/elements/memory-board.html">
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -26,13 +26,15 @@
 
         <div class="container" style="padding-top:30px">
 			<div class="page-header">
-				<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{user.main.fullName.getOrElse{""}}</h2>
+				<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{@user.main.fullName.getOrElse{User}}</h2>
 			</div>
 
 			<div class="clearfix">
-				<h2>Welcome to the Lobby "@lobby"</h2>
+				<h2>This is the Lobby "@lobby"</h2>
 				
-				<game-elem owner="@lobby"></game-elem>
+				<div class="cardfild">
+					<memory-board id="memboard"></memory-board>
+				</div>
 				
 				<hr>
 				

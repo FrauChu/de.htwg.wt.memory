@@ -1,0 +1,103 @@
+<link rel="import"
+      href="/bower_components/polymer/polymer.html">
+<link rel="import"
+      href="/elements/memory-card.html">
+<!-- import the paper-button custom element -->
+<link rel="import"
+      href="/bower_components/paper-button/paper-button.html">
+
+<dom-module name="memory-board">
+
+	<template id="memboard">
+		<template is="dom-repeat" items="{{heigthcount}}" as="i">
+			<div class="cardrow">
+				<template is="dom-repeat" items="{{widthcount}}" as="j">
+					<memory-card posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
+				</template>
+			</div>
+		</template>
+		<!-- <paper-button raised on-click="clickHandler">Add row</paper-button> <!-- -->
+	</template>
+
+  <script>
+	Polymer({
+		is: "memory-board",
+		listeners: {
+		},
+		properties: {
+			size: {
+				type: Object,
+				observer: 'reloadBoard'
+			},
+			socket: {
+				type: Object,
+				value: {
+					fakeRequest: function() {
+						response = JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}");
+						this.parent.checkSize(response);
+						return response;
+					},
+					fakeSend: function(payload) {
+						alert("Sending request. Payload: " + payload);
+					},
+					getCard: function(x, y) {
+						return this.fakeRequest().cards[x][y];
+					},
+					getBoard: function() {
+						return this.fakeRequest().cards;
+					},
+					pick: function(x, y) {
+						var payload = new Object();
+						payload.x = x;
+						payload.y = y;
+						payload.action = "pick";
+						return this.fakeSend(JSON.stringify(payload));
+					}
+				},
+				readOnly: true
+			}
+		},
+		ready: function() {
+			this.socket.parent = this;
+			x = this.socket.fakeRequest();
+		},
+		checkSize: function(resp) {
+			if (!("width" in resp) || !("height" in resp)) {
+				alert("No size info in response.");
+				return;
+			}
+			var newsize = new Object();
+			newsize.width = resp.width;
+			newsize.height = resp.height;
+			if (!this.size || newsize.width != this.size.width || newsize.height != this.size.height) {
+				this.size = newsize;
+			}
+		},
+		reloadBoard: function() {
+			//alert('Reloading...');
+			this.cards = [];
+			this.widthcount = [];
+			this.heigthcount = [];
+			socket = this.socket;
+			if(!socket) { socket = this.properties.socket.value; }
+			this.result = socket.getBoard();
+			for (i = 0; i < this.size.height; i++) {
+				this.push('heigthcount', i);
+				rowbase = Math.floor(i/2) * this.size.width;
+				var row = [];
+				for (j = 0; j < this.size.width; j++) {
+					if (i == 0) { this.push('widthcount', j); }
+					row[j] = "" + this.result[i][j];
+				}
+				//alert("Pushing row " + row);
+				this.push('cards', row);
+			}
+		},
+		clickHandler: function() {
+			this.push('cards', ['g', 'h', 'i', 'j', 'k', 'l']);
+			this.push('cards', ['g', 'h', 'i', 'j', 'k', 'l']);
+		}
+	});
+  </script>
+
+</dom-module>

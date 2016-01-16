@@ -19,6 +19,8 @@ package controllers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.google.inject.Inject;
 
@@ -70,15 +72,6 @@ public class Application extends Controller {
         return ok(start.render(user, SecureSocial.env()));
     }
 
-    @SecuredAction
-    public Result play(String gameName) {
-        if(logger.isDebugEnabled()){
-            logger.debug("access granted to index");
-        }
-        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        return ok(game.render(user, SecureSocial.env(), gameName));
-    }
-
     @UserAwareAction
     public Result userAware() {
         DemoUser demoUser = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
@@ -113,11 +106,17 @@ public class Application extends Controller {
     	String cont = "";
     	try {
 	    	File reqFile = new File(rootPath, file);
+	    	//Make sure result path is still in root path
+	    	if (!Paths.get(reqFile.getAbsolutePath()).startsWith(Paths.get(new File(rootPath).getAbsolutePath())))
+	    		return notFound("404 - Not Found");
 	    	BufferedReader br = new BufferedReader(new FileReader(reqFile));
 	    	String line = "";
 	    	while ((line = br.readLine()) != null)
 	    			cont += line + "\n";
-    	} catch (Exception e) {}
+    	} catch (Exception e) {
+    		return notFound("404 - Not Found");
+    	}
+
     	return ok(cont);
     }
 
