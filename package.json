@@ -2,5 +2,5 @@
     "bower": "1.6.5"
 },
 "scripts": {
-    "postinstall": "./node_modules/bower/bin/bower install"
+    "postinstall": "bower install"
 }
