@@ -13,3 +13,4 @@ project/.sbtserver*
 /bin/
 /conf/oauth_tokens.conf
 bower_components
+git-*
