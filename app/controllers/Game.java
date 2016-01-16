@@ -60,38 +60,29 @@ public class Game extends Controller {
         List<DemoUser> players = lobbys.get(gameName);
         if (!players.contains(user))
         	players.add(user);
-        logger.info("Now " + players.size() + " Players in game " + gameName);
-        if (logger.isDebugEnabled()) {
-        	logger.debug("Players:");
+        if (logger.isInfoEnabled()) {
+            logger.info("Now " + players.size() + " Players in game " + gameName);
+        	logger.info("Players:");
         	for (DemoUser i : players)
-        		logger.debug(userToReadable(i));
+        		logger.info(userToReadable(i));
         }
         return ok(game.render(user, SecureSocial.env(), gameName));
     }
 
     @SecuredAction
-    public Result getBoard(String gameName) {
-    	gameName = gameName.equals("") ? DEFAULT_LOBBY : gameName;
-        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        
-        return ok("1 1 2 2 3 3\n4 4 5 5 6 6");
-    }
-
-    @SecuredAction
-    public Result getCard(String gameName, int x, int y) {
-    	gameName = gameName.equals("") ? DEFAULT_LOBBY : gameName;
-    	String[][] board = new String[][] {
-    			new String[] {"1", "1", "2", "2", "3", "3"},
-    			new String[] {"4", "4", "5", "5", "6", "6"}
-    	};
-        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        return ok(board[x][y]);
-    }
-
-    @SecuredAction
-    public synchronized WebSocket<String> getSocket(DemoUser user) {
+    public synchronized WebSocket<String> getSocket() {
+    	final String userId = ((DemoUser) ctx().args.get(SecureSocial.USER_KEY)).identities.get(0).userId();
         return new WebSocket<String>(){
-        	public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {};
+        	public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
+                System.out.println("Init Socket for " + userId);
+
+                in.onClose(new F.Callback0() {
+                    @Override
+                    public void invoke() throws Throwable {
+                        System.out.println(userId + " has quit the game");
+                    }
+                });
+        	};
         };
     }
 }

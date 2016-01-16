@@ -32,26 +32,50 @@
 			socket: {
 				type: Object,
 				value: {
-					fakeRequest: function() {
-						response = JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}");
-						this.parent.checkSize(response);
-						return response;
+					socket: null,
+					curData: JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}"),
+					
+					init: function () {
+						var origin = window.location.origin;
+						origin = origin.replace("https", "wss");
+						origin = origin.replace("http", "ws");
+						this.socket = new WebSocket(origin + "/socket");
+						this.socket.onerror = this.onError.bind(this);
+						this.socket.onopen = this.onOpen.bind(this);
+						this.socket.onmessage = this.onMessage.bind(this);
 					},
-					fakeSend: function(payload) {
-						alert("Sending request. Payload: " + payload);
+					onMessage: function(event) {
+						//curData = event.data;
+						curData = JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}");
+						this.parent.checkSize(curData);
+						return curData;
+					},
+					onError: function (error) {
+						console.log("Error with web socket...");
+					},
+					onOpen: function (event) {
+						console.log("WebSocket opened");
+						this.parent.checkSize(curData);
+					},
+					send: function (message) {
+						console.log("Sending request. Payload: " + payload);
+						this.socket.send(message);
+					},
+					close: function () {
+						this.socket.close();
 					},
 					getCard: function(x, y) {
-						return this.fakeRequest().cards[x][y];
+						return this.curData.cards[x][y];
 					},
 					getBoard: function() {
-						return this.fakeRequest().cards;
+						return this.curData.cards;
 					},
 					pick: function(x, y) {
 						var payload = new Object();
 						payload.x = x;
 						payload.y = y;
 						payload.action = "pick";
-						return this.fakeSend(JSON.stringify(payload));
+						return this.send(JSON.stringify(payload));
 					}
 				},
 				readOnly: true
@@ -59,7 +83,7 @@
 		},
 		ready: function() {
 			this.socket.parent = this;
-			x = this.socket.fakeRequest();
+			this.socket.init();
 		},
 		checkSize: function(resp) {
 			if (!("width" in resp) || !("height" in resp)) {
