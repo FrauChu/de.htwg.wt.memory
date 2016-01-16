@@ -90,29 +90,8 @@ public class Game extends Controller {
 
     @SecuredAction
     public synchronized WebSocket<String> getSocket(DemoUser user) {
-        logger.info("User " + userToReadable(user) + " got Socket Mutex");
-        System.out.println("Got Socket Mutex");
-        WUIController wuictrl = null;
-        DemoUser player = null;
-        for (WUIController wui : gameControllerMap.values()) {
-            System.out.println("is Player1:" + wui.getPlayer1().main.userId().equals(userID));
-            if (wui.getPlayer1().main.userId().equals(userID)) {
-                wuictrl = wui;
-                player = wuictrl.getPlayer1();
-                break;
-            }
-            try {
-                System.out.println("is Player2: " + wui.getPlayer2().main.userId().equals(userID));
-                if (wui.getPlayer2().main.userId().equals(userID)) {
-                    wuictrl = wui;
-                    player = wuictrl.getPlayer2();
-                    break;
-                }
-            } catch (NullPointerException npe) {
-                //player 2 is not in the game yet
-            }
-        }
-        System.out.println(wuictrl.toString());
-        return wuictrl.getSocket(player);
+        return new WebSocket<String>(){
+        	public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {};
+        };
     }
 }
