@@ -17,7 +17,7 @@
 			<span>Players in game:</span>
 			<ul>
 			<template is="dom-repeat" items="{{players}}" as="player">
-				<li class$="{{boldIfCurrent(player)}}">{{player}}</li>
+				<li class$="{{boldIfCurrent(player, currentPlayer)}}">{{player}}</li>
 			</template>
 			</ul>
 		</div>
@@ -41,8 +41,8 @@
 				}
 			},
 
-			boldIfCurrent: function(name) {
-				if (name == this.currentPlayer) {
+			boldIfCurrent: function(name, currentPlayer) {
+				if (name == currentPlayer) {
 					return 'bold';
 				}
 				return '';

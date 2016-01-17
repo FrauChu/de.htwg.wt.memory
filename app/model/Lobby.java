@@ -158,10 +158,10 @@ public class Lobby implements UiEventListener{
 		}
 	}
 	
-	private void sendBoardUpdate() {
+	private Response getBoardResp() {
 		Response resp = new Response();
 		resp.setCards(boardToField(gameController.getBoard()));
-		sendToAll(resp.asJson());
+		return resp;
 	}
 	
 	private Response fullStatus() {
@@ -172,6 +172,7 @@ public class Lobby implements UiEventListener{
 		resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 		resp.setRound(gameController.getRoundNumber());
 		resp.setPlayerList(playerNames());
+		
 		return resp;
 	}
 	
@@ -194,15 +195,13 @@ public class Lobby implements UiEventListener{
 
 	@Override
 	public void boardChanged() {
-		Response resp = new Response();
-		resp.setCards(boardToField(gameController.getBoard()));
+		Response resp = getBoardResp();
 		sendToAll(resp.asJson());
 	}
 
 	@Override
 	public void boardNeedsRealod() {
-		Response resp = new Response();
-		resp.setCards(boardToField(gameController.getBoard()));
+		Response resp = getBoardResp();
 		sendToAll(resp.asJson());
 	}
 
@@ -213,16 +212,14 @@ public class Lobby implements UiEventListener{
 
 	@Override
 	public void matchMade() {
-		Response resp = new Response();
-		resp.setCards(boardToField(gameController.getBoard()));
+		Response resp = getBoardResp();
 		sendToAll(resp.asJson());
 	}
 
 	@Override
 	public void noMatchMade() {
 		needReload = true;
-		Response resp = new Response();
-		resp.setCards(boardToField(gameController.getBoard()));
+		Response resp = getBoardResp();
 		resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 		resp.setRound(gameController.getRoundNumber());
 		sendToAll(resp.asJson());
