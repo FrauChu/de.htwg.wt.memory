@@ -40,7 +40,12 @@ public class DemoUser implements Serializable {
     	return null;
     }
     
-    public String getHumanReadable() {
-    	return identities.get(0).fullName().get() + " (" + identities.get(0).userId() + ")";
+    @Override
+    public String toString() {
+    	return getName() + " (" + main.userId() + ")";
+    }
+    
+    public String getName() {
+    	return main.fullName().get();
     }
 }

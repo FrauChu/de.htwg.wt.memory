@@ -1,0 +1,54 @@
+<link rel="import"
+      href="/bower_components/polymer/polymer.html">
+<!-- import the iron-input custom element -->
+<link rel="import"
+      href="/bower_components/iron-input/iron-input.html">
+
+<dom-module name="board-status">
+	<style>
+		li.bold {
+			font-weight: bold;
+		}
+	</style>
+
+	<template>
+		<span>Current round: {{currentRound}}</span>
+		<div class="players">
+			<span>Players in game:</span>
+			<ul>
+			<template is="dom-repeat" items="{{players}}" as="player">
+				<li class$="{{boldIfCurrent(player)}}">{{player}}</li>
+			</template>
+			</ul>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "board-status",
+			properties: {
+				currentRound: {
+					type: Number,
+					value: 0
+				},
+				players: {
+					type: Array,
+					value: []
+				},
+				currentPlayer: {
+					type: String,
+					value: ""
+				}
+			},
+
+			boldIfCurrent: function(name) {
+				if (name == this.currentPlayer) {
+					return 'bold';
+				}
+				return '';
+			}
+		});
+	</script>
+
+</dom-module>
+

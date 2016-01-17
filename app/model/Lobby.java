@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import play.Logger;
 import play.libs.F;
@@ -35,7 +38,7 @@ public class Lobby implements UiEventListener{
 		boolean result = players.contains(player);
 		if (!result) {
 			for (DemoUser p : players)
-				System.out.println("\t" + p.getHumanReadable());
+				System.out.println("\t" + p.toString());
 		}
 		return result;
 	}
@@ -84,7 +87,7 @@ public class Lobby implements UiEventListener{
 					Thread.sleep(60000);
 					if (!offlinePlayers.contains(player))
 						return;
-					logger.info(player.getHumanReadable() + " still offline. Removing from game.");
+					logger.info(player.toString() + " still offline. Removing from game.");
 			        removePlayer(player);
 				} catch (InterruptedException consumed) { }
 			}
@@ -98,7 +101,7 @@ public class Lobby implements UiEventListener{
         in.onClose(new F.Callback0() {
             @Override
             public void invoke() throws Throwable {
-            	logger.debug(player.getHumanReadable() + " has left the game");
+            	logger.debug(player.toString() + " has left the game");
                 playerLeft(player);
             }
         });
@@ -118,7 +121,7 @@ public class Lobby implements UiEventListener{
 	
 	public WebSocket<String> getSocketForPlayer(final DemoUser player) {
 		if (offlinePlayers.contains(player)) {
-			logger.debug(player.getHumanReadable() + " rejoined in time.");
+			logger.debug(player.toString() + " rejoined in time.");
 			offlinePlayers.remove(player);
 		}
 		return new WebSocket<String>() {
@@ -166,7 +169,17 @@ public class Lobby implements UiEventListener{
 		Board b = gameController.getBoard();
 		resp.setSize(b.getWidth(), b.getHeight());
 		resp.setCards(boardToField(b));
+		resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
+		resp.setRound(gameController.getRoundNumber());
+		resp.setPlayerList(playerNames());
 		return resp;
+	}
+	
+	private String[] playerNames() {
+		String[] result = new String[players.size()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = players.get(i).getName();
+		return result;
 	}
 	
 	private static String[][] boardToField(Board b) {
@@ -181,12 +194,16 @@ public class Lobby implements UiEventListener{
 
 	@Override
 	public void boardChanged() {
-		sendBoardUpdate();
+		Response resp = new Response();
+		resp.setCards(boardToField(gameController.getBoard()));
+		sendToAll(resp.asJson());
 	}
 
 	@Override
 	public void boardNeedsRealod() {
-		sendBoardUpdate();
+		Response resp = new Response();
+		resp.setCards(boardToField(gameController.getBoard()));
+		sendToAll(resp.asJson());
 	}
 
 	@Override
@@ -196,13 +213,19 @@ public class Lobby implements UiEventListener{
 
 	@Override
 	public void matchMade() {
-		sendBoardUpdate();
+		Response resp = new Response();
+		resp.setCards(boardToField(gameController.getBoard()));
+		sendToAll(resp.asJson());
 	}
 
 	@Override
 	public void noMatchMade() {
 		needReload = true;
-		sendBoardUpdate();
+		Response resp = new Response();
+		resp.setCards(boardToField(gameController.getBoard()));
+		resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
+		resp.setRound(gameController.getRoundNumber());
+		sendToAll(resp.asJson());
 	}
 
 	@Override
@@ -213,7 +236,19 @@ public class Lobby implements UiEventListener{
 	@Override
 	public void win() {
 		Response resp = fullStatus();
-		resp.addAction("end");
+		JsonObject action = new JsonObject();
+		action.addProperty("action", "end");
+		action.addProperty("rounds", gameController.getRoundNumber());
+		action.addProperty("winner", players.get(gameController.getCurrentPlayer() - 1).getName());
+		JsonArray playerScores = new JsonArray();
+		for (int i = 0; i < gameController.getPlayerCount(); i++) {
+			JsonObject playerScore = new JsonObject();
+			playerScore.addProperty("name", players.get(i).getName());
+			playerScore.addProperty("points", gameController.getPlayerMatches(i));
+			playerScores.add(playerScore);
+		}
+		action.add("playerScores", playerScores);
+		resp.addAction(action);
 		sendToAll(resp.asJson());
 	}
 }

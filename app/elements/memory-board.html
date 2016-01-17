@@ -1,14 +1,13 @@
-<link rel="import"
-      href="/bower_components/polymer/polymer.html">
-<link rel="import"
-      href="/elements/memory-card.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/memory-card.html">
+<link rel="import" href="/elements/board-status.html">
 <!-- import the paper-button custom element -->
-<link rel="import"
-      href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
 
 <dom-module name="memory-board">
 
 	<template id="memboard">
+		<board-status id="statusb"></board-status>
 		<template is="dom-repeat" items="{{heigthcount}}" as="i">
 			<div class="cardrow">
 				<template is="dom-repeat" items="{{widthcount}}" as="j">
@@ -51,6 +50,7 @@
 							this.cards = this.curData.cards;
 						}
 						this.parent.checkSize(this.curData);
+						this.parent.checkStatus(this.curData);
 						this.parent.updateBoard();
 						this.parent.checkAction(this.curData);
 					},
@@ -116,15 +116,33 @@
 				this.size = newsize;
 			}
 		},
+		checkStatus: function(resp) {
+			statusboard = document.querySelector("#statusb");
+			if ("round" in resp) {
+				statusboard.currentRound = resp.round;
+			}
+			if ("players" in resp) {
+				statusboard.players = resp.players;
+			}
+			if ("currentPlayer" in resp) {
+				statusboard.currentPlayer = resp.currentPlayer;
+			}
+		},
 		checkAction: function(resp) {
 			if (!("actions" in resp)) {
 				return;
 			}
 			for (i in resp.actions) {
 				action = resp.actions[i]
-				console.log("Processing action " + action);
-				if (action == "end") {
-					alert("Game has ended.");
+				console.log("Processing action " + action.action);
+				if (action.action == "end") {
+					var overview = "Game has ended.";
+					overview += "\nRounds played: " + action.rounds;
+					overview += "\nScores:";
+					for (j in action.playerScores) {
+						overview += "\n\t" + action.playerScores[i].name + ":\t" + action.playerScores[i].points;
+					}
+					alert(overview);
 				}
 			}
 		},

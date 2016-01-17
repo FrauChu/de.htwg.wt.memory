@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 public class Response {
 	private HashMap<String, Object> data;
@@ -22,7 +23,7 @@ public class Response {
 		data.put("cards", cards);
 	}
 	
-	public void setActions(Iterable<String> actions) {
+	public void setActions(Iterable<JsonElement> actions) {
 		LinkedList<Object> toPut = new LinkedList<>();
 		for (Object o : actions)
 			toPut.add(o);
@@ -33,6 +34,11 @@ public class Response {
 		data.put("actions", new LinkedList<>());
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void addAction(JsonElement action) {
+		((LinkedList<Object>)data.get("actions")).add(action);
+	}
+	
 	public void setCurrentPlayer(String name) {
 		data.put("currentPlayer", name);
 	}
@@ -41,9 +47,12 @@ public class Response {
 		data.put("players", names);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void addAction(String action) {
-		((LinkedList<Object>)data.get("actions")).add(action);
+	public void setPlayerScores(String[] scores) {
+		data.put("scores", scores);
+	}
+	
+	public void setRound(int round) {
+		data.put("round", round);
 	}
 	
 	public String asJson() {

@@ -51,7 +51,7 @@ public class Game extends Controller {
         if (logger.isDebugEnabled()) {
         	logger.debug("Players:");
         	for (DemoUser i : lobby.playerIter())
-        		logger.debug(i.getHumanReadable());
+        		logger.debug(i.toString());
         }
         return ok(RenderService.renderGame(user, SecureSocial.env(), gameName));
     }
@@ -68,7 +68,7 @@ public class Game extends Controller {
     		if (lobbys.get(gameName).containsPlayer(user))
     			return lobbys.get(gameName).getSocketForPlayer(user);
     	}
-    	logger.error("User " + user.getHumanReadable() + " requested WebSocket but is not part of any game.");
+    	logger.error("User " + user.toString() + " requested WebSocket but is not part of any game.");
     	return WebSocket.reject(Results.badRequest("Player not in any game."));
     }
 }
