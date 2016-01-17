@@ -37,6 +37,10 @@ public class Response {
 		data.put("currentPlayer", name);
 	}
 	
+	public void setPlayerList(String[] names) {
+		data.put("players", names);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void addAction(String action) {
 		((LinkedList<Object>)data.get("actions")).add(action);

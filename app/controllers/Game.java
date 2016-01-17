@@ -46,32 +46,29 @@ public class Game extends Controller {
         }
         Lobby lobby = lobbys.get(gameName);
         lobby.addPlayer(user);
-        
-        if (logger.isInfoEnabled()) {
-            logger.info("Now " + lobby.getPlayerCount() + " Players in game " + gameName);
-        	logger.info("Players:");
+
+        logger.info("Now " + lobby.getPlayerCount() + " Players in game " + gameName);
+        if (logger.isDebugEnabled()) {
+        	logger.debug("Players:");
         	for (DemoUser i : lobby.playerIter())
-        		logger.info(i.getHumanReadable());
+        		logger.debug(i.getHumanReadable());
         }
         return ok(RenderService.renderGame(user, SecureSocial.env(), gameName));
     }
 
     @SecuredAction
     public synchronized WebSocket<String> getSocket() {
-    	System.out.println("Get socket called");
+    	logger.debug("Get socket called");
         DemoUser user = (DemoUser) SecureSocial.currentUser(env).get(100);
         if (user == null)
         	return null;
-        System.out.println("User has " + user.identities.size() + " identities.");
-        final String userId = user.identities.get(0).userId();
-    	System.out.println("Using id " + userId + " for requested Socket.");
+        logger.debug("User has " + user.identities.size() + " identities.");
     	for (String gameName : lobbys.keySet()) {
-    		System.out.println("Checking lobby " + gameName);
+    		logger.debug("Checking lobby " + gameName);
     		if (lobbys.get(gameName).containsPlayer(user))
     			return lobbys.get(gameName).getSocketForPlayer(user);
     	}
     	logger.error("User " + user.getHumanReadable() + " requested WebSocket but is not part of any game.");
-    	System.out.println("Not part of any game.");
     	return WebSocket.reject(Results.badRequest("Player not in any game."));
     }
 }

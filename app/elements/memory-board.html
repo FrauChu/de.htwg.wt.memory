@@ -51,8 +51,8 @@
 							this.cards = this.curData.cards;
 						}
 						this.parent.checkSize(this.curData);
-						this.parent.checkAction(this.curData);
 						this.parent.updateBoard();
+						this.parent.checkAction(this.curData);
 					},
 					onError: function (error) {
 						console.log("Error with web socket...");
@@ -66,7 +66,7 @@
 						this._keepAlive();
 					},
 					send: function (message) {
-						console.log("Sending request. Payload: " + message);
+						//console.log("Sending request. Payload: " + message);
 						this.socket.send(message);
 					},
 					close: function () {
@@ -83,6 +83,8 @@
 						return this.send(JSON.stringify(payload));
 					},
 					_keepAlive: function() {
+						// Heroku will end connections after 55 Seconds without traffic
+						// So this method will produce traffic.
 						(function(){
 							var payload = new Object();
 							payload.action = "keep-alive";

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import com.google.gson.Gson;
 
+import play.Logger;
 import play.libs.F;
 import play.mvc.WebSocket;
 import play.mvc.WebSocket.In;
@@ -16,6 +17,7 @@ import de.htwg.memory.logic.Controller;
 import de.htwg.memory.logic.UiEventListener;
 
 public class Lobby implements UiEventListener{
+	public static Logger.ALogger logger = Logger.of("application.model.Lobby");
 	private LinkedList<DemoUser> players = new LinkedList<>();
 	private LinkedList<DemoUser> offlinePlayers = new LinkedList<>();
 	private HashMap<String, In<String>> inputChannels = new HashMap<>();
@@ -45,7 +47,7 @@ public class Lobby implements UiEventListener{
 	public void addPlayer(final DemoUser player) {
 		if (containsPlayer(player))
 			return;
-		System.out.println("Adding new player " + player);
+		logger.debug("Adding new player " + player);
 		players.add(player);
         gameController.setPlayerCount(getPlayerCount());
 	}
@@ -82,7 +84,7 @@ public class Lobby implements UiEventListener{
 					Thread.sleep(60000);
 					if (!offlinePlayers.contains(player))
 						return;
-					System.out.println(player.getHumanReadable() + " still offline. Removing from game.");
+					logger.info(player.getHumanReadable() + " still offline. Removing from game.");
 			        removePlayer(player);
 				} catch (InterruptedException consumed) { }
 			}
@@ -96,19 +98,18 @@ public class Lobby implements UiEventListener{
         in.onClose(new F.Callback0() {
             @Override
             public void invoke() throws Throwable {
-                System.out.println(player.getHumanReadable() + " has left the game");
+            	logger.debug(player.getHumanReadable() + " has left the game");
                 playerLeft(player);
             }
         });
         in.onMessage(new F.Callback<String>() {
         	public void invoke(String a) throws Throwable {
         		try {
-	        		System.out.println("Got message " + a);
+        			logger.debug("Got message " + a);
 	        		Request req = new Gson().fromJson(a, Request.class);
 	        		playerRequest(player, req);
         		} catch (Exception e) {
-        			System.err.println("Exception in message handling.");
-        			e.printStackTrace();
+        			logger.error("Exception in message handling.", e);
         			throw e;
         		}
         	};
@@ -117,7 +118,7 @@ public class Lobby implements UiEventListener{
 	
 	public WebSocket<String> getSocketForPlayer(final DemoUser player) {
 		if (offlinePlayers.contains(player)) {
-			System.out.println(player.getHumanReadable() + " rejoined in time.");
+			logger.debug(player.getHumanReadable() + " rejoined in time.");
 			offlinePlayers.remove(player);
 		}
 		return new WebSocket<String>() {
@@ -130,20 +131,20 @@ public class Lobby implements UiEventListener{
 	
 	private void playerRequest(DemoUser player, Request req) {
 		if (req.action.equals("keep-alive")) {
-			System.out.println("Got keep-alive. Doing nothing.");
+			logger.trace("Got keep-alive. Doing nothing.");
 		} else if (req.action.equals("get")) {
 			outputChannels.get(player.getId()).write(fullStatus().asJson());
 		} else if (req.action.equals("restart")) {
-			System.out.println("Calling restart");
+			logger.trace("Calling restart");
 			gameController.resetGame();
 		} else if (needReload && isHisTurn(player)) {
-			System.out.println("Calling hide wrong");
+			logger.trace("Calling hide wrong");
 			gameController.hideWrongMatch();
 			needReload = false;
 		} else if (req.action.equals("pick")) {
-			System.out.println("Picking card");
+			logger.trace("Picking card");
 			if (!gameController.pickCard(req.x, req.y)) {
-				System.out.println("Choice was invalid.");
+				logger.debug("Choice was invalid.");
 			}
 		}
 	}
