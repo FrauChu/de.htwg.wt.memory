@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/elements/memory-card.html">
 <link rel="import" href="/elements/board-status.html">
+<link rel="import" href="/elements/chat-area.html">
 <!-- import the paper-button custom element -->
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 
@@ -16,6 +17,7 @@
 			</div>
 		</template>
 		<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
+		<chat-area id="chata"></chat-area>
 	</template>
 
   <script>
@@ -32,13 +34,16 @@
 				type: Object,
 				value: {
 					socket: null,
-					cards: JSON.parse("[[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"]]"),
-					curData: JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"]]}"),
+					cards: null,
+					curData: null,
 					
 					init: function () {
 						var origin = window.location.origin;
-						origin = origin.replace("https", "wss");
-						origin = origin.replace("http", "ws");
+						if (origin.lastIndexOf("https", 0) == 0) {
+							origin = origin.replace("https", "wss");
+						} else if (origin.lastIndexOf("http", 0) == 0) {
+							origin = origin.replace("http", "ws");
+						}
 						this.socket = new WebSocket(origin + "/socket");
 						this.socket.onerror = this.onError.bind(this);
 						this.socket.onopen = this.onOpen.bind(this);
@@ -53,6 +58,7 @@
 						this.parent.checkStatus(this.curData);
 						this.parent.updateBoard();
 						this.parent.checkAction(this.curData);
+						this.parent.checkMessages(this.curData);
 					},
 					onError: function (error) {
 						console.log("Error with web socket...");
@@ -104,6 +110,7 @@
 		ready: function() {
 			this.socket.parent = this;
 			this.socket.init();
+			document.querySelector('chat-area').socket = this.socket;
 		},
 		checkSize: function(resp) {
 			if (!("width" in resp) || !("height" in resp)) {
@@ -126,6 +133,12 @@
 			}
 			if ("currentPlayer" in resp) {
 				statusboard.currentPlayer = resp.currentPlayer;
+			}
+		},
+		checkMessages: function(resp) {
+			chatArea = document.querySelector("#chata");
+			if ("chatHistory" in resp) {
+				chatArea.messages = resp.chatHistory;
 			}
 		},
 		checkAction: function(resp) {

@@ -23,7 +23,7 @@ import securesocial.core.services.UserService
 import scala.collection.immutable.ListMap
 
 class MyEnvironment extends RuntimeEnvironment.Default {
-  type U = DemoUser
+  type U = User
   override lazy val providers = ListMap(
     //include(new FacebookProvider(routes, cacheService, oauth2ClientFor(FacebookProvider.Facebook))),
     include(new GitHubProvider(routes, cacheService, oauth2ClientFor(GitHubProvider.GitHub))),

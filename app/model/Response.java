@@ -55,6 +55,13 @@ public class Response {
 		data.put("round", round);
 	}
 	
+	public void setChatHistory(Iterable<String> messages) {
+		LinkedList<String> toPut = new LinkedList<>();
+		for (String o : messages)
+			toPut.add(o);
+		data.put("chatHistory", toPut);
+	}
+	
 	public String asJson() {
 		return new Gson().toJson(data);
 	}

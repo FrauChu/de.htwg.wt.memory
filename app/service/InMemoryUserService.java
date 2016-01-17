@@ -35,22 +35,22 @@ import java.util.Map;
  * Note: This is NOT suitable for a production environment and is provided only as a guide.
  * A real implementation would persist things in a database
  */
-public class InMemoryUserService extends BaseUserService<DemoUser> {
+public class InMemoryUserService extends BaseUserService<User> {
     public Logger.ALogger logger = play.Logger.of("application.service.InMemoryUserService");
 
-    private HashMap<String, DemoUser> users = new HashMap<String, DemoUser>();
+    private HashMap<String, User> users = new HashMap<String, User>();
     private HashMap<String, Token> tokens = new HashMap<String, Token>();
 
     @Override
-    public F.Promise<DemoUser> doSave(BasicProfile profile, SaveMode mode) {
+    public F.Promise<User> doSave(BasicProfile profile, SaveMode mode) {
     	System.out.println("Do save called");
-        DemoUser result = null;
+        User result = null;
         if (mode == SaveMode.SignUp()) {
-            result = new DemoUser(profile);
+            result = new User(profile);
             users.put(profile.providerId() + profile.userId(), result);
         } else if (mode == SaveMode.LoggedIn()) {
-            for (Iterator<DemoUser> it =  users.values().iterator() ; it.hasNext() && result == null ; ) {
-                DemoUser user = it.next();
+            for (Iterator<User> it =  users.values().iterator() ; it.hasNext() && result == null ; ) {
+                User user = it.next();
                 for ( BasicProfile p : user.identities) {
                     if ( p.userId().equals(profile.userId()) && p.providerId().equals(profile.providerId())) {
                         user.identities.remove(p);
@@ -61,8 +61,8 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
                 }
             }
         } else if (mode == SaveMode.PasswordChange()) {
-            for (Iterator<DemoUser> it =  users.values().iterator() ; it.hasNext() && result == null ; ) {
-                DemoUser user = it.next();
+            for (Iterator<User> it =  users.values().iterator() ; it.hasNext() && result == null ; ) {
+                User user = it.next();
                 for (BasicProfile p : user.identities) {
                     if (p.userId().equals(profile.userId()) && p.providerId().equals(UsernamePasswordProvider.UsernamePassword())) {
                         user.identities.remove(p);
@@ -79,11 +79,11 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
     }
 
     @Override
-    public F.Promise<DemoUser> doLink(DemoUser current, BasicProfile to) {
+    public F.Promise<User> doLink(User current, BasicProfile to) {
     	System.out.println("Do link called");
-        DemoUser target = null;
+        User target = null;
 
-        for ( DemoUser u: users.values() ) {
+        for ( User u: users.values() ) {
             if ( u.main.providerId().equals(current.main.providerId()) && u.main.userId().equals(current.main.userId()) ) {
                 target = u;
                 break;
@@ -120,7 +120,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
         }
         BasicProfile found = null;
 
-        for ( DemoUser u: users.values() ) {
+        for ( User u: users.values() ) {
             for ( BasicProfile i : u.identities ) {
                 if ( i.providerId().equals(providerId) && i.userId().equals(userId) ) {
                     found = i;
@@ -133,12 +133,12 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
     }
 
     @Override
-    public F.Promise<PasswordInfo> doPasswordInfoFor(DemoUser user) {
+    public F.Promise<PasswordInfo> doPasswordInfoFor(User user) {
         throw new RuntimeException("doPasswordInfoFor is not implemented yet in sample app");
     }
 
     @Override
-    public F.Promise<BasicProfile> doUpdatePasswordInfo(DemoUser user, PasswordInfo info) {
+    public F.Promise<BasicProfile> doUpdatePasswordInfo(User user, PasswordInfo info) {
         throw new RuntimeException("doUpdatePasswordInfo is not implemented yet in sample app");
     }
 
@@ -153,7 +153,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
     public F.Promise<BasicProfile> doFindByEmailAndProvider(String email, String providerId) {
         BasicProfile found = null;
 
-        for ( DemoUser u: users.values() ) {
+        for ( User u: users.values() ) {
             for ( BasicProfile i : u.identities ) {
                 if ( i.providerId().equals(providerId) && i.email().isDefined() && i.email().get().equals(email) ) {
                     found = i;

@@ -1,0 +1,80 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- import the iron-input custom element -->
+<link rel="import" href="/bower_components/iron-input/iron-input.html">
+
+<dom-module name="chat-area" attributes="memboardid">
+	<style>
+		div.container {
+			margin: 10pt 0 18pt;
+			border: 1px solid #aaaaaa;
+		}
+		div.chatarea {
+			height: 300pt;
+			overflow-y: auto;
+		}
+		p {
+			background-color: #e0edff;
+			border: 1px solid #bcc7d6;
+			border-bottom-left-radius: 12px;
+			border-bottom-right-radius: 12px;
+			border-top-right-radius: 12px;
+			max-width: 200px;
+			padding: 5px 8px 4px;
+		}
+	</style>
+
+    <template>
+		<div class="container">
+			<div class="chatarea">
+				<template is="dom-repeat" items="{{messages}}" as="msg">
+					<p>
+						{{msg}}
+					</p>
+				</template>
+			</div>
+			<input is="iron-input" bind-value="{{message}}" placeholder="Enter message here..." on-keypress="keyHandler">
+		</div>
+    </template>
+
+    <script>
+		Polymer({
+			is: "chat-area",
+			ENTER_KEY: 13,
+			properties: {
+				reload: {
+					type: Number,
+					value: 0
+				},
+				memboardid: {
+					type: String,
+					observer: 'memboardIdChanged'
+				},
+				messages: {
+					type: Array,
+					value: []
+				}
+			},
+			memboardIdChanged: function() {
+				console.log("Evaluating memboardId");
+				memboard = document.querySelector('#' + this.memboardid);
+				console.log("Got memboard " + memboard);
+				if (memboard) {
+					console.log("Setting this.socket");
+					this.socket = memboard.socket;
+				}
+			},
+			keyHandler: function(e, detail, sender) {
+				if (e.keyCode != this.ENTER_KEY) {
+					return;
+				}
+				var payload = new Object();
+				payload.action = "chat";
+				payload.message = this.message;
+				this.socket.send(JSON.stringify(payload));
+				this.message = "";
+			}
+		});
+    </script>
+
+</dom-module>
+

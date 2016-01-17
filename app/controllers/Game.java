@@ -11,7 +11,7 @@ import play.mvc.WebSocket;
 import securesocial.core.RuntimeEnvironment;
 import securesocial.core.java.SecureSocial;
 import securesocial.core.java.SecuredAction;
-import service.DemoUser;
+import service.User;
 import views.RenderService;
 
 import com.google.inject.Inject;
@@ -40,7 +40,7 @@ public class Game extends Controller {
         if(logger.isDebugEnabled()){
             logger.debug("access granted to play");
         }
-        DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
+        User user = (User) ctx().args.get(SecureSocial.USER_KEY);
         if (!lobbys.containsKey(gameName)) {
         	lobbys.put(gameName, new Lobby());
         }
@@ -50,7 +50,7 @@ public class Game extends Controller {
         logger.info("Now " + lobby.getPlayerCount() + " Players in game " + gameName);
         if (logger.isDebugEnabled()) {
         	logger.debug("Players:");
-        	for (DemoUser i : lobby.playerIter())
+        	for (User i : lobby.playerIter())
         		logger.debug(i.toString());
         }
         return ok(RenderService.renderGame(user, SecureSocial.env(), gameName));
@@ -59,7 +59,7 @@ public class Game extends Controller {
     @SecuredAction
     public synchronized WebSocket<String> getSocket() {
     	logger.debug("Get socket called");
-        DemoUser user = (DemoUser) SecureSocial.currentUser(env).get(100);
+        User user = (User) SecureSocial.currentUser(env).get(100);
         if (user == null)
         	return null;
         logger.debug("User has " + user.identities.size() + " identities.");

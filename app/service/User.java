@@ -22,10 +22,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DemoUser implements Serializable {
+public class User implements Serializable {
 	private static final long serialVersionUID = 7858126738291926463L;
 
-	public DemoUser(BasicProfile user) {
+	public User(BasicProfile user) {
         this.main = user;
         identities = new ArrayList<BasicProfile>();
         identities.add(user);

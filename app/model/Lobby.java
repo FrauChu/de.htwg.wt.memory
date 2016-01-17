@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import play.Logger;
@@ -14,17 +13,18 @@ import play.libs.F;
 import play.mvc.WebSocket;
 import play.mvc.WebSocket.In;
 import play.mvc.WebSocket.Out;
-import service.DemoUser;
+import service.User;
 import de.htwg.memory.entities.Board;
 import de.htwg.memory.logic.Controller;
 import de.htwg.memory.logic.UiEventListener;
 
 public class Lobby implements UiEventListener{
 	public static Logger.ALogger logger = Logger.of("application.model.Lobby");
-	private LinkedList<DemoUser> players = new LinkedList<>();
-	private LinkedList<DemoUser> offlinePlayers = new LinkedList<>();
+	private LinkedList<User> players = new LinkedList<>();
+	private LinkedList<User> offlinePlayers = new LinkedList<>();
 	private HashMap<String, In<String>> inputChannels = new HashMap<>();
 	private HashMap<String, Out<String>> outputChannels = new HashMap<>();
+	private LinkedList<String> chatHistory = new LinkedList<>();
 	private final Controller gameController;
 	private boolean needReload = false;
 	
@@ -34,10 +34,10 @@ public class Lobby implements UiEventListener{
 		gameController.addListener(this);
 	}
 	
-	public boolean containsPlayer(DemoUser player) {
+	public boolean containsPlayer(User player) {
 		boolean result = players.contains(player);
 		if (!result) {
-			for (DemoUser p : players)
+			for (User p : players)
 				System.out.println("\t" + p.toString());
 		}
 		return result;
@@ -47,7 +47,7 @@ public class Lobby implements UiEventListener{
 	 * Adds player if not already in game.
 	 * @param player Player to add
 	 */
-	public void addPlayer(final DemoUser player) {
+	public void addPlayer(final User player) {
 		if (containsPlayer(player))
 			return;
 		logger.debug("Adding new player " + player);
@@ -55,7 +55,7 @@ public class Lobby implements UiEventListener{
         gameController.setPlayerCount(getPlayerCount());
 	}
 	
-	public void removePlayer(DemoUser player) {
+	public void removePlayer(User player) {
 		if (!containsPlayer(player))
 			return;
 		players.remove(player);
@@ -66,7 +66,7 @@ public class Lobby implements UiEventListener{
         gameController.setPlayerCount(getPlayerCount());
 	}
 	
-	public Iterable<DemoUser> playerIter() {
+	public Iterable<User> playerIter() {
 		return players;
 	}
 	
@@ -74,11 +74,11 @@ public class Lobby implements UiEventListener{
 		return players.size();
 	}
 	
-	public boolean isHisTurn(DemoUser player) {
+	public boolean isHisTurn(User player) {
 		return players.get(gameController.getCurrentPlayer() - 1).equals(player);
 	}
 	
-	private void playerLeft(final DemoUser player) {
+	private void playerLeft(final User player) {
         offlinePlayers.add(player);
         new Thread(new Runnable() {
 			@Override
@@ -94,7 +94,7 @@ public class Lobby implements UiEventListener{
 		}).start();
 	}
 	
-	private void initWebSocket(final DemoUser player, final In<String> in, final Out<String> out) {
+	private void initWebSocket(final User player, final In<String> in, final Out<String> out) {
 		inputChannels.put(player.getId(), in);
 		outputChannels.put(player.getId(), out);
 		
@@ -119,7 +119,7 @@ public class Lobby implements UiEventListener{
         });
 	}
 	
-	public WebSocket<String> getSocketForPlayer(final DemoUser player) {
+	public WebSocket<String> getSocketForPlayer(final User player) {
 		if (offlinePlayers.contains(player)) {
 			logger.debug(player.toString() + " rejoined in time.");
 			offlinePlayers.remove(player);
@@ -132,9 +132,11 @@ public class Lobby implements UiEventListener{
 		};
 	}
 	
-	private void playerRequest(DemoUser player, Request req) {
+	private void playerRequest(User player, Request req) {
 		if (req.action.equals("keep-alive")) {
 			logger.trace("Got keep-alive. Doing nothing.");
+		} else if (req.action.equals("chat")) {
+			addChatMessage(player, req.message);
 		} else if (req.action.equals("get")) {
 			outputChannels.get(player.getId()).write(fullStatus().asJson());
 		} else if (req.action.equals("restart")) {
@@ -144,12 +146,19 @@ public class Lobby implements UiEventListener{
 			logger.trace("Calling hide wrong");
 			gameController.hideWrongMatch();
 			needReload = false;
-		} else if (req.action.equals("pick")) {
+		} else if (req.action.equals("pick") && isHisTurn(player)) {
 			logger.trace("Picking card");
 			if (!gameController.pickCard(req.x, req.y)) {
 				logger.debug("Choice was invalid.");
 			}
 		}
+	}
+	
+	private void addChatMessage(User user, String message) {
+		chatHistory.add(user.getName() + ": " + message);
+		Response resp = new Response();
+		resp.setChatHistory(chatHistory);
+		sendToAll(resp.asJson());
 	}
 	
 	private void sendToAll(String message) {
@@ -169,9 +178,12 @@ public class Lobby implements UiEventListener{
 		Board b = gameController.getBoard();
 		resp.setSize(b.getWidth(), b.getHeight());
 		resp.setCards(boardToField(b));
-		resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 		resp.setRound(gameController.getRoundNumber());
-		resp.setPlayerList(playerNames());
+		resp.setChatHistory(chatHistory);
+		if (players.size() > 0) {
+			resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
+			resp.setPlayerList(playerNames());
+		}
 		
 		return resp;
 	}
