@@ -19,26 +19,21 @@ package controllers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.google.inject.Inject;
 
 import play.Logger;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
-import securesocial.core.AuthenticationMethod;
 import securesocial.core.BasicProfile;
 import securesocial.core.RuntimeEnvironment;
 import securesocial.core.java.SecureSocial;
 import securesocial.core.java.SecuredAction;
 import securesocial.core.java.UserAwareAction;
 import service.DemoUser;
-import views.html.index;
-import views.html.linkResult;
-import views.html.start;
-import views.html.game;
+import views.RenderService;
+
+import com.google.inject.Inject;
 
 /**
  * A sample controller
@@ -69,7 +64,7 @@ public class Application extends Controller {
             logger.debug("access granted to index");
         }
         DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        return ok(start.render(user, SecureSocial.env()));
+        return ok(RenderService.renderStart(user, SecureSocial.env()));
     }
 
     @UserAwareAction
@@ -99,7 +94,7 @@ public class Application extends Controller {
     @SecuredAction
     public Result linkResult() {
         DemoUser current = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
-        return ok(linkResult.render(current, current.identities));
+        return ok(RenderService.renderLinkResult(current));
     }
     
     public Result fileLoad(String rootPath, String file) {

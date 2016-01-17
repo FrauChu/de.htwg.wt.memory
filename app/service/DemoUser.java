@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DemoUser implements Serializable {
-    public DemoUser(BasicProfile user) {
+	private static final long serialVersionUID = 7858126738291926463L;
+
+	public DemoUser(BasicProfile user) {
         this.main = user;
         identities = new ArrayList<BasicProfile>();
         identities.add(user);
@@ -31,4 +33,14 @@ public class DemoUser implements Serializable {
 
     public BasicProfile main;
     public List<BasicProfile> identities;
+    
+    public String getId() {
+    	if (identities.size() > 0)
+    		return identities.get(0).userId();
+    	return null;
+    }
+    
+    public String getHumanReadable() {
+    	return identities.get(0).fullName().get() + " (" + identities.get(0).userId() + ")";
+    }
 }

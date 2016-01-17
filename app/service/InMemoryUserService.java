@@ -43,6 +43,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
 
     @Override
     public F.Promise<DemoUser> doSave(BasicProfile profile, SaveMode mode) {
+    	System.out.println("Do save called");
         DemoUser result = null;
         if (mode == SaveMode.SignUp()) {
             result = new DemoUser(profile);
@@ -79,6 +80,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
 
     @Override
     public F.Promise<DemoUser> doLink(DemoUser current, BasicProfile to) {
+    	System.out.println("Do link called");
         DemoUser target = null;
 
         for ( DemoUser u: users.values() ) {
@@ -112,6 +114,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
 
     @Override
     public F.Promise<BasicProfile> doFind(String providerId, String userId) {
+    	System.out.println("Do find called");
         if(logger.isDebugEnabled()){
             logger.debug("Finding user " + userId);
         }
@@ -141,6 +144,7 @@ public class InMemoryUserService extends BaseUserService<DemoUser> {
 
     @Override
     public F.Promise<Token> doFindToken(String tokenId) {
+    	System.out.println("Do find token called");
         return F.Promise.pure(tokens.get(tokenId));
     }
 

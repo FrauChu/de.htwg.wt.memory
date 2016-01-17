@@ -16,7 +16,7 @@
 				</template>
 			</div>
 		</template>
-		<!-- <paper-button raised on-click="clickHandler">Add row</paper-button> <!-- -->
+		<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
 	</template>
 
   <script>
@@ -33,7 +33,8 @@
 				type: Object,
 				value: {
 					socket: null,
-					curData: JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}"),
+					cards: JSON.parse("[[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"]]"),
+					curData: JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"]]}"),
 					
 					init: function () {
 						var origin = window.location.origin;
@@ -45,30 +46,34 @@
 						this.socket.onmessage = this.onMessage.bind(this);
 					},
 					onMessage: function(event) {
-						//curData = event.data;
-						curData = JSON.parse("{\"width\": 8,\"height\": 4,\"cards\":[[1,1,2,2,3,3,4,4],[5,5,6,6,7,7,8,8],[9,9,10,10,11,11,12,12],[13,13,14,14,15,15,16,16]]}");
-						this.parent.checkSize(curData);
-						return curData;
+						this.curData = JSON.parse(event.data);
+						if ("cards" in this.curData) {
+							this.cards = this.curData.cards;
+						}
+						this.parent.checkSize(this.curData);
+						this.parent.checkAction(this.curData);
+						this.parent.updateBoard();
 					},
 					onError: function (error) {
 						console.log("Error with web socket...");
+						console.log(error);
 					},
 					onOpen: function (event) {
 						console.log("WebSocket opened");
-						this.parent.checkSize(curData);
+						var payload = new Object();
+						payload.action = "get";
+						this.send(JSON.stringify(payload));
+						this._keepAlive();
 					},
 					send: function (message) {
-						console.log("Sending request. Payload: " + payload);
+						console.log("Sending request. Payload: " + message);
 						this.socket.send(message);
 					},
 					close: function () {
 						this.socket.close();
 					},
 					getCard: function(x, y) {
-						return this.curData.cards[x][y];
-					},
-					getBoard: function() {
-						return this.curData.cards;
+						return this.cards[x][y];
 					},
 					pick: function(x, y) {
 						var payload = new Object();
@@ -76,6 +81,19 @@
 						payload.y = y;
 						payload.action = "pick";
 						return this.send(JSON.stringify(payload));
+					},
+					_keepAlive: function() {
+						(function(){
+							var payload = new Object();
+							payload.action = "keep-alive";
+							socket = document.querySelector("#memboard").socket;
+							if (socket.socket.readyState == 1) { // 1 = Open
+								socket.send(JSON.stringify(payload));
+								setTimeout(arguments.callee, 45000);
+							} else {
+								console.log("Socket in state " + socket.readyState);
+							}
+						})();
 					}
 				},
 				readOnly: true
@@ -87,7 +105,6 @@
 		},
 		checkSize: function(resp) {
 			if (!("width" in resp) || !("height" in resp)) {
-				alert("No size info in response.");
 				return;
 			}
 			var newsize = new Object();
@@ -97,29 +114,47 @@
 				this.size = newsize;
 			}
 		},
+		checkAction: function(resp) {
+			if (!("actions" in resp)) {
+				return;
+			}
+			for (i in resp.actions) {
+				action = resp.actions[i]
+				console.log("Processing action " + action);
+				if (action == "end") {
+					alert("Game has ended.");
+				}
+			}
+		},
 		reloadBoard: function() {
-			//alert('Reloading...');
+			//console.log('Reloading...');
 			this.cards = [];
 			this.widthcount = [];
 			this.heigthcount = [];
 			socket = this.socket;
 			if(!socket) { socket = this.properties.socket.value; }
-			this.result = socket.getBoard();
 			for (i = 0; i < this.size.height; i++) {
 				this.push('heigthcount', i);
 				rowbase = Math.floor(i/2) * this.size.width;
 				var row = [];
 				for (j = 0; j < this.size.width; j++) {
 					if (i == 0) { this.push('widthcount', j); }
-					row[j] = "" + this.result[i][j];
+					row[j] = "" + socket.cards[i][j];
 				}
-				//alert("Pushing row " + row);
+				//console.log("Pushing row " + row);
 				this.push('cards', row);
 			}
 		},
+		updateBoard: function() {
+			cards = document.querySelectorAll("memory-card");
+			for (var i = 0, element; element = cards[i]; i++) {
+				element.reload++;
+			}
+		},
 		clickHandler: function() {
-			this.push('cards', ['g', 'h', 'i', 'j', 'k', 'l']);
-			this.push('cards', ['g', 'h', 'i', 'j', 'k', 'l']);
+			var payload = new Object();
+			payload.action = "restart";
+			this.socket.send(JSON.stringify(payload));
 		}
 	});
   </script>

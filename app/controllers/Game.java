@@ -1,40 +1,27 @@
 package controllers;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.google.inject.Inject;
-
+import model.Lobby;
 import play.Logger;
-import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.WebSocket;
-import securesocial.core.AuthenticationMethod;
-import securesocial.core.BasicProfile;
 import securesocial.core.RuntimeEnvironment;
 import securesocial.core.java.SecureSocial;
 import securesocial.core.java.SecuredAction;
-import securesocial.core.java.UserAwareAction;
 import service.DemoUser;
-import views.html.game;
+import views.RenderService;
+
+import com.google.inject.Inject;
 
 public class Game extends Controller {
 	private static final String DEFAULT_LOBBY = "default";
 	public static Logger.ALogger logger = Logger.of("application.controllers.Game");
     private RuntimeEnvironment env;
     
-    private HashMap<String, List<DemoUser>> lobbys = new HashMap<>();
-    
-    private static String userToReadable(DemoUser u) {
-    	return u.identities.get(0).fullName().get() + " (" + u.identities.get(0).userId() + ")";
-    }
+    private static HashMap<String, Lobby> lobbys = new HashMap<>();
 
     /**
      * A constructor needed to get a hold of the environment instance.
@@ -55,34 +42,36 @@ public class Game extends Controller {
         }
         DemoUser user = (DemoUser) ctx().args.get(SecureSocial.USER_KEY);
         if (!lobbys.containsKey(gameName)) {
-        	lobbys.put(gameName, new LinkedList<DemoUser>());
+        	lobbys.put(gameName, new Lobby());
         }
-        List<DemoUser> players = lobbys.get(gameName);
-        if (!players.contains(user))
-        	players.add(user);
+        Lobby lobby = lobbys.get(gameName);
+        lobby.addPlayer(user);
+        
         if (logger.isInfoEnabled()) {
-            logger.info("Now " + players.size() + " Players in game " + gameName);
+            logger.info("Now " + lobby.getPlayerCount() + " Players in game " + gameName);
         	logger.info("Players:");
-        	for (DemoUser i : players)
-        		logger.info(userToReadable(i));
+        	for (DemoUser i : lobby.playerIter())
+        		logger.info(i.getHumanReadable());
         }
-        return ok(game.render(user, SecureSocial.env(), gameName));
+        return ok(RenderService.renderGame(user, SecureSocial.env(), gameName));
     }
 
     @SecuredAction
     public synchronized WebSocket<String> getSocket() {
-    	final String userId = ((DemoUser) ctx().args.get(SecureSocial.USER_KEY)).identities.get(0).userId();
-        return new WebSocket<String>(){
-        	public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
-                System.out.println("Init Socket for " + userId);
-
-                in.onClose(new F.Callback0() {
-                    @Override
-                    public void invoke() throws Throwable {
-                        System.out.println(userId + " has quit the game");
-                    }
-                });
-        	};
-        };
+    	System.out.println("Get socket called");
+        DemoUser user = (DemoUser) SecureSocial.currentUser(env).get(100);
+        if (user == null)
+        	return null;
+        System.out.println("User has " + user.identities.size() + " identities.");
+        final String userId = user.identities.get(0).userId();
+    	System.out.println("Using id " + userId + " for requested Socket.");
+    	for (String gameName : lobbys.keySet()) {
+    		System.out.println("Checking lobby " + gameName);
+    		if (lobbys.get(gameName).containsPlayer(user))
+    			return lobbys.get(gameName).getSocketForPlayer(user);
+    	}
+    	logger.error("User " + user.getHumanReadable() + " requested WebSocket but is not part of any game.");
+    	System.out.println("Not part of any game.");
+    	return WebSocket.reject(Results.badRequest("Player not in any game."));
     }
 }
