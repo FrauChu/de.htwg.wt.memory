@@ -17,13 +17,22 @@
 		<link rel="import" href="/elements/memory-board.html">
     </head>
     <body>
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <span class="brand" >Memory</span>
-                </div>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Memory</a>
             </div>
+            <ul id="navbar" class="nav navbar-nav navbar-right navbar-collapse collapse">
+                <li><a href="/">Main-Menu</a></li>
+            </ul>
         </div>
+    </nav>
 
         <div class="container" style="padding-top:30px">
 			<div class="page-header">
@@ -34,12 +43,6 @@
 				<h2>This is the Lobby "@lobby"</h2>
 				
 				<memory-board id="memboard"></memory-board>
-				
-				<hr>
-				
-				<a class="btn" href="/">Main-Menu</a>
-
-				</span>
 			</div>
         </div>
     </body>
