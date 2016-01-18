@@ -137,12 +137,16 @@
 			if ("currentPlayer" in resp) {
 				statusboard.currentPlayer = resp.currentPlayer;
 			}
+			if ("scores" in resp) {
+				statusboard.scores = resp.scores;
+			}
 		},
 		checkMessages: function(resp) {
 			chatArea = document.querySelector("#chata");
 			if ("chatHistory" in resp) {
 				chatArea.messages = resp.chatHistory;
 			}
+			//chatArea.scrollMax();
 		},
 		checkAction: function(resp) {
 			if (!("actions" in resp)) {

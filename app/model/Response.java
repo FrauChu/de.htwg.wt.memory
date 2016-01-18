@@ -47,6 +47,10 @@ public class Response {
 		data.put("players", names);
 	}
 	
+	public void setScoreList(String[] scores) {
+		data.put("scores", scores);
+	}
+	
 	public void setPlayerScores(String[] scores) {
 		data.put("scores", scores);
 	}

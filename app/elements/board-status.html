@@ -13,7 +13,7 @@
 			<span>Players in game:</span>
 			<ul>
 			<template is="dom-repeat" items="{{players}}" as="player">
-				<li class$="{{boldIfCurrent(player, currentPlayer)}}">{{player}}</li>
+				<li class$="{{boldIfCurrent(player, currentPlayer)}}">{{player}} ({{playerScore(player, scores)}})</li>
 			</template>
 			</ul>
 		</div>
@@ -31,6 +31,10 @@
 					type: Array,
 					value: []
 				},
+				scores: {
+					type: Array,
+					value: []
+				},
 				currentPlayer: {
 					type: String,
 					value: ""
@@ -42,6 +46,14 @@
 					return 'bold';
 				}
 				return '';
+			},
+			playerScore: function(name, scores) {
+				for (i = 0; i < this.players.length && i < this.scores.length; i++) {
+					if (this.players[i] === name) {
+						return scores[i];
+					}
+				}
+				return '-1';
 			}
 		});
 	</script>

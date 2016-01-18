@@ -187,6 +187,7 @@ public class Lobby implements UiEventListener{
 		if (players.size() > 0) {
 			resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 			resp.setPlayerList(playerNames());
+			resp.setScoreList(playerScores());
 		}
 		
 		return resp;
@@ -196,6 +197,13 @@ public class Lobby implements UiEventListener{
 		String[] result = new String[players.size()];
 		for (int i = 0; i < result.length; i++)
 			result[i] = players.get(i).getName();
+		return result;
+	}
+	
+	private String[] playerScores() {
+		String[] result = new String[players.size()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = String.valueOf(gameController.getPlayerMatches(i));
 		return result;
 	}
 	
@@ -229,6 +237,7 @@ public class Lobby implements UiEventListener{
 	@Override
 	public void matchMade() {
 		Response resp = getBoardResp();
+		resp.setScoreList(playerScores());
 		sendToAll(resp.asJson());
 	}
 
