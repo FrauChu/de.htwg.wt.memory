@@ -5,11 +5,12 @@
 <dom-module name="chat-area" attributes="memboardid">
 	<style>
 		div.chatwindow {
+			height: 300pt;
 			margin: 10pt 0 18pt;
 			border: 1px solid #aaaaaa;
 		}
 		div.chatarea {
-			height: 200pt;
+			height: 89%;
 			overflow-y: auto;
 		}
 		p {
@@ -20,6 +21,7 @@
 			border-top-right-radius: 12px;
 			max-width: 200px;
 			padding: 5px 8px 4px;
+			margin: 5px 2px 0;
 		}
 		input {
 			padding: 5px;
@@ -75,7 +77,7 @@
 			},
 			msgObserver: function() {
 				var scroll = document.querySelector("#forAutoScroll");
-				if (scroll && scroll.clientHeight + scroll.scrollTop === scroll.scrollHeight) {
+				if (scroll && (scroll.clientHeight + scroll.scrollTop == scroll.scrollHeight || scroll.scrollTopMax == 0)) {
 					this.async(this.scrollMax);
 				}
 			},

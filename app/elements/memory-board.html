@@ -11,6 +11,9 @@
 			padding-left: 4px;
 			padding-right: 4px;
 		}
+		div.col-xs-4 {
+			margin-top: -13px;
+		}
 	</style>
 
 	<template id="memboard">
@@ -120,7 +123,17 @@
 		ready: function() {
 			this.socket.parent = this;
 			this.socket.init();
-			document.querySelector('chat-area').socket = this.socket;
+			var chat = document.querySelector('chat-area');
+			chat.socket = this.socket;
+			this.async(function() {
+				if (document.querySelector('div.col-xs-1') == null) {
+					setTimeout(arguments.callee, 200);
+					return;
+				}
+				$('chat-area > div.chatwindow').css('height', document.querySelector('div.col-xs-1').clientHeight + "px");
+				$('chat-area > div.chatwindow > div').css('height', (document.querySelector('div.col-xs-1').clientHeight - 45) + "px");
+			});
+			
 		},
 		checkSize: function(resp) {
 			if (!("width" in resp) || !("height" in resp)) {
