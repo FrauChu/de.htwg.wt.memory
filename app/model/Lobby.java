@@ -29,7 +29,7 @@ public class Lobby implements UiEventListener{
 	private boolean needReload = false;
 	
 	public Lobby() {
-		gameController = Controller.getController();
+		gameController = Controller.getNewController();
 		gameController.loadBoard(new File("public/images/animals/game.dat"));
 		gameController.addListener(this);
 	}
@@ -59,8 +59,7 @@ public class Lobby implements UiEventListener{
 		if (!containsPlayer(player))
 			return;
 		players.remove(player);
-		if (offlinePlayers.contains(player))
-			offlinePlayers.remove(player);
+		offlinePlayers.remove(player);
 		inputChannels.remove(player.getId());
 		outputChannels.remove(player.getId());
         gameController.setPlayerCount(getPlayerCount());
@@ -103,6 +102,8 @@ public class Lobby implements UiEventListener{
             public void invoke() throws Throwable {
             	logger.debug(player.toString() + " has left the game");
                 playerLeft(player);
+        		inputChannels.remove(player.getId());
+        		outputChannels.remove(player.getId());
             }
         });
         in.onMessage(new F.Callback<String>() {

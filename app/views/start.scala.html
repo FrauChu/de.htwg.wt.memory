@@ -1,60 +1,72 @@
 @(user: service.User, env: securesocial.core.RuntimeEnvironment)
 @import securesocial.core.IdentityProvider
 @import securesocial.core.AuthenticationMethod._
+@import controllers.Game
 @import Http.Context.Implicit
 
 @main("Welcome Page") {
     <style>
-	span.text {
-        font-weight: bold;
-        font-size-adjust: 1
-		padding-top: 10pt;
-    }
-
-    form {
-		margin-top: 20pt;
-	}
+		span.text {
+			padding-top: 10pt;
+	    }
+	
+	    lobby-selector {
+			margin-top: 20pt;
+		}
     </style>
-	<link rel="import" href="/bower_components/iron-input/iron-input.html">
+	<link rel="import" href="/elements/lobby-selector.html">
 
 	<div class="page-header">
-		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{@user.main.fullName.getOrElse{}}</h2>
+		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Hello @user.main.firstName.getOrElse{@user.main.fullName.getOrElse{}}</h2>
 	</div>
 
 	<div class="clearfix">
 		<h2>Welcome to Memory!</h2>
 
-		<span>
+		<span class="text">
 			Memory is a Game for 1 - 8 Players.<br>
 			The goal is to find as many matching card pairs as possible from a set of hidden cards.<br>
 			Selected cards are revealed, if the match is correct they stay open, else they will be hidden again.<br>
 			The game ends if all card pairs are found.
 		</span>
-		<form action="/play" method="get">
-			<span>Select a game to join:</span><br>
-			<input is="iron-input" name="gameName" placeholder="default">
-			<input type="submit" value="Enter">
-		</form>
+		<lobby-selector></lobby-selector>
 
 		<hr>
 
 		@user.main.passwordInfo.map { info =>
-		<a class="btn" href="@env.routes.passwordChangeUrl(Implicit.ctx()._requestHeader())">Change Password</a>
+			<a class="btn" href="@env.routes.passwordChangeUrl(Implicit.ctx()._requestHeader())">Change Password</a>
 		}
 
 		<a class="btn" href="/link-result">Account Details</a>
 		<a class="btn" href="@securesocial.controllers.routes.LoginPage.logout()">Logout</a>
 
 		<hr>
-		 <span>Link this account to
+		<span>
+			Link this account to
 
-		@env.providers.values.map { provider =>
-			@if( provider.authMethod == OAuth1 || provider.authMethod == OAuth2 ) {
-				@defining( "images/providers/%s.png".format(provider.id) ) { imageUrl =>
-				<a href="@env.routes.authenticationUrl(provider.id, Some("/link-result"))"> <img src="@securesocial.controllers.routes.Assets.at(imageUrl)"/></a>
-			 }
+			@env.providers.values.map { provider =>
+				@if( provider.authMethod == OAuth1 || provider.authMethod == OAuth2 ) {
+					@defining( "images/providers/%s.png".format(provider.id) ) { imageUrl =>
+					<a href="@env.routes.authenticationUrl(provider.id, Some("/link-result"))"> <img src="@securesocial.controllers.routes.Assets.at(imageUrl)"/></a>
+				 }
+				}
 			}
-		}
 		</span>
 	</div>
+	<script>
+		(function() {
+			if (document.querySelector("lobby-selector").lobby == undefined) {
+				setTimeout(arguments.callee, 200);
+				return;
+			}
+			var lobbys = "@controllers.Game.getCurrentLobbys()";
+			if (lobbys != "[]") {
+				lobbys = lobbys.replace(", ", "\", \"");
+				lobbys = lobbys.replace("[", "[\"");
+				lobbys = lobbys.replace("]", "\"]");
+			}
+			document.querySelector("lobby-selector").lobbys = JSON.parse(lobbys);
+			console.log("Lobbys set to " + lobbys);
+		})();
+	</script>
 }

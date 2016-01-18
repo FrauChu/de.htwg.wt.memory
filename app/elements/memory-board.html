@@ -9,13 +9,15 @@
 
 	<template id="memboard">
 		<board-status id="statusb"></board-status>
-		<template is="dom-repeat" items="{{heigthcount}}" as="i">
-			<div class="cardrow">
-				<template is="dom-repeat" items="{{widthcount}}" as="j">
-					<memory-card posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
-				</template>
-			</div>
-		</template>
+		<div class="cardfild">
+			<template is="dom-repeat" items="{{heigthcount}}" as="i">
+				<div class="cardrow">
+					<template is="dom-repeat" items="{{widthcount}}" as="j">
+						<memory-card posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
+					</template>
+				</div>
+			</template>
+		</div>
 		<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
 		<chat-area id="chata"></chat-area>
 	</template>

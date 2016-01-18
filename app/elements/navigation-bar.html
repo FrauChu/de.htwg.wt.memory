@@ -5,25 +5,25 @@
 
 <dom-module name="navigation-bar">
 
-  <template>
-    <p>
-    This is a <strong>{{owner}}</strong>'s editable-name-tag.
-    </p>
-    <input is="iron-input" bind-value="{{owner}}"
-      placeholder="Enter name here...">
-  </template>
+    <template>
+		<p>
+		This is a <strong>{{owner}}</strong>'s editable-name-tag.
+		</p>
+		<input is="iron-input" bind-value="{{owner}}"
+		    placeholder="Enter name here...">
+    </template>
 
-  <script>
-    Polymer({
-      is: "navigation-bar",
-      properties: {
-        owner: {
-          type: String,
-          value: "Daniel"
-        }
-      }
-    });
-  </script>
+    <script>
+		Polymer({
+		    is: "navigation-bar",
+				properties: {
+				owner: {
+				    type: String,
+				    value: "Daniel"
+				}
+		    }
+		});
+    </script>
 
 </dom-module>
 

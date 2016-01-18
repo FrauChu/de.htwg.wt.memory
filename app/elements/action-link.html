@@ -1,0 +1,23 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module name="action-link" extends="span" attributes="link">
+    <script>
+		Polymer({
+		    is: "action-link",
+			properties: {
+				link: {
+					type: String,
+					value: "#"
+				}
+		    },
+			listeners: {
+				'click': 'clickHandler'
+			},
+			clickHandler: function() {
+				this.fire("action-link-click", this.link);
+			}
+		});
+    </script>
+
+</dom-module>
+

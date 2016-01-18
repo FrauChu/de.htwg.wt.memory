@@ -1,6 +1,8 @@
 package controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import model.Lobby;
 import play.Logger;
@@ -33,6 +35,11 @@ public class Game extends Controller {
     public Game (RuntimeEnvironment env) {
         this.env = env;
     }
+    
+    public static List<String> getCurrentLobbys() {
+    	cleanLobbys();
+    	return new ArrayList<>(lobbys.keySet());
+    }
 
     @SecuredAction
     public Result play(String gameName) {
@@ -44,6 +51,11 @@ public class Game extends Controller {
         if (!lobbys.containsKey(gameName)) {
         	lobbys.put(gameName, new Lobby());
         }
+    	for (String lobbyName : lobbys.keySet()) {
+    		logger.debug("Checking lobby " + lobbyName);
+    		if (!lobbyName.equals(gameName) && lobbys.get(lobbyName).containsPlayer(user))
+    			lobbys.get(lobbyName).removePlayer(user);
+    	}
         Lobby lobby = lobbys.get(gameName);
         lobby.addPlayer(user);
 
@@ -54,6 +66,13 @@ public class Game extends Controller {
         		logger.debug(i.toString());
         }
         return ok(RenderService.renderGame(user, SecureSocial.env(), gameName));
+    }
+    
+    private static void cleanLobbys() {
+    	for (String lobbyName : lobbys.keySet()) {
+    		if (lobbys.get(lobbyName).getPlayerCount() == 0)
+    			lobbys.remove(lobbyName);
+    	}
     }
 
     @SecuredAction

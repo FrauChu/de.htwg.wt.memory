@@ -1,0 +1,69 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- import the iron-input custom element -->
+<link rel="import" href="/bower_components/iron-input/iron-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/elements/action-link.html">
+
+<dom-module name="lobby-selector">
+	<style>
+		ul
+		{
+			background-color: #333333;
+			line-height: 35px;
+			margin: 0;
+			position: relative;
+			text-align: left;
+			padding-left: 10px;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			width: 200px;
+		}
+		ul li
+		{
+			list-style: none;
+			color: #FFFFFF;
+			cursor: pointer;
+		}
+		form
+		{
+			margin: 18px 0 18px;
+		}
+	</style>
+
+    <template>
+		<form action="/play" method="get">
+			<span>Select a game to join:</span><br>
+			<ul>
+				<template is="dom-repeat" items="{{lobbys}}" as="lby">
+					<li>
+						<action-link link="{{lby}}" on-action-link-click="clickAction">{{lby}}</action-link>
+					</li>
+				</template>
+			</ul>
+			<span>Or create a new Lobby:</span><br>
+			<input is="iron-input" bind-value="{{lobby}}" name="gameName" placeholder="default">
+			<input type="submit" value="Enter">
+		</form>
+    </template>
+
+    <script>
+		Polymer({
+		    is: "lobby-selector",
+			properties: {
+				lobby: {
+				    type: String,
+				    value: ""
+				},
+				lobbys: {
+				    type: Array,
+				    value: []
+				}
+		    },
+			clickAction: function(lobbyClick) {
+				this.lobby = lobbyClick.detail;
+			}
+		});
+    </script>
+
+</dom-module>
+

@@ -46,6 +46,8 @@ public class User implements Serializable {
     }
     
     public String getName() {
-    	return main.fullName().get();
+    	if (main.fullName().isDefined())
+    		return main.fullName().get();
+    	return "Unnamed User";
     }
 }
