@@ -184,7 +184,7 @@ public class Lobby implements UiEventListener{
 		resp.setCards(boardToField(b));
 		resp.setRound(gameController.getRoundNumber());
 		resp.setChatHistory(chatHistory);
-		if (players.size() > 0) {
+		if (players.size() > 0 && players.size() == gameController.getPlayerCount()) {
 			resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 			resp.setPlayerList(playerNames());
 			resp.setScoreList(playerScores());
@@ -202,9 +202,17 @@ public class Lobby implements UiEventListener{
 	
 	private String[] playerScores() {
 		String[] result = new String[players.size()];
-		for (int i = 0; i < result.length; i++)
-			result[i] = String.valueOf(gameController.getPlayerMatches(i));
-		return result;
+		int i = 0;
+		try {
+			for (i = 0; i < result.length; i++)
+				result[i] = String.valueOf(gameController.getPlayerMatches(i));
+			return result;
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
+			System.err.println("I have " + players.size() + " Players. Controller has: " + gameController.getPlayerCount());
+			System.err.println("Result array was created with " + result.length + " elements. I was " + i + " at crash.");
+		}
+		return new String[0];
 	}
 	
 	private static String[][] boardToField(Board b) {

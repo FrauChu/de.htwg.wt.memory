@@ -3,13 +3,26 @@
 <!-- import the iron-input custom element -->
 <link rel="import"
       href="/bower_components/iron-image/iron-image.html">
+<link rel="import"
+      href="/bower_components/paper-card/paper-card.html">
 
 <dom-module name="memory-card" attributes="posx posy memboardid">
+	<style>
+		iron-image::content img#img.iron-image.style-scope, iron-image::content div#placeholder.iron-image.style-scope {
+			width: 100%;
+		}
+		div {
+			cursor: pointer;
+		}
+	</style>
 
-  <template id="x{{posx}}y{{posy}}">
-  	<iron-image style="width:80px; height:80px; background-color: lightgray;"
-  		sizing="cover" preload fade src="/assets/images/animals/{{cardnumber}}.jpg"></iron-image>
-  </template>
+    <template id="x{{posx}}y{{posy}}">
+		<div>
+			<iron-image style="background-color: lightgray;"
+				preload fade src="/assets/images/animals/{{cardnumber}}.jpg"></iron-image> <!-- -->
+			<!-- <paper-card image="/assets/images/animals/{{cardnumber}}.jpg"></paper-card> <!-- -->
+		</div>
+    </template>
 
   <script>
 	Polymer({

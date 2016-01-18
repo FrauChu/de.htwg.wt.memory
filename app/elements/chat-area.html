@@ -22,9 +22,10 @@
 			padding: 5px 8px 4px;
 		}
 		input {
-			margin-bottom: 8px;
-			margin-left: 8px;
-			width: 300px;
+			padding: 5px;
+			margin: 5px;
+			width: -webkit-calc(100% - 10px);
+			width: -moz-calc(100% - 10px);
 		}
 	</style>
 
@@ -73,7 +74,10 @@
 				}
 			},
 			msgObserver: function() {
-				this.async(this.scrollMax);
+				var scroll = document.querySelector("#forAutoScroll");
+				if (scroll && scroll.clientHeight + scroll.scrollTop === scroll.scrollHeight) {
+					this.async(this.scrollMax);
+				}
 			},
 			scrollMax: function() {
 				var scroll = document.querySelector("#forAutoScroll");
@@ -82,7 +86,7 @@
 				}
 			},
 			keyHandler: function(e, detail, sender) {
-				if (e.keyCode != this.ENTER_KEY) {
+				if (e.keyCode != this.ENTER_KEY || this.message == "") {
 					return;
 				}
 				var payload = new Object();
