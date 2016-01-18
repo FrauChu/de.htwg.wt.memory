@@ -4,7 +4,7 @@
 
 <dom-module name="chat-area" attributes="memboardid">
 	<style>
-		div.container {
+		div.chatwindow {
 			margin: 10pt 0 18pt;
 			border: 1px solid #aaaaaa;
 		}
@@ -24,7 +24,7 @@
 	</style>
 
     <template>
-		<div class="container">
+		<div class="chatwindow">
 			<div class="chatarea">
 				<template is="dom-repeat" items="{{messages}}" as="msg">
 					<p>

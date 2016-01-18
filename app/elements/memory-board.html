@@ -7,19 +7,26 @@
 
 <dom-module name="memory-board">
 
+	<!--
+		< 8 > <4>
+		<4 Zeilen * 8 spalten>
+	-->
+
 	<template id="memboard">
-		<board-status id="statusb"></board-status>
-		<div class="cardfild">
-			<template is="dom-repeat" items="{{heigthcount}}" as="i">
-				<div class="cardrow">
-					<template is="dom-repeat" items="{{widthcount}}" as="j">
+			<board-status id="statusb"></board-status>
+		<div class="row">
+			<template is="dom-repeat" items="{{widthcount}}" as="j">
+				<div class="col-xs-1">
+					<template is="dom-repeat" items="{{heigthcount}}" as="i">
 						<memory-card posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
 					</template>
 				</div>
 			</template>
+			<div class="col-xs-4">
+				<chat-area id="chata"></chat-area>
+			</div>
 		</div>
-		<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
-		<chat-area id="chata"></chat-area>
+			<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
 	</template>
 
   <script>

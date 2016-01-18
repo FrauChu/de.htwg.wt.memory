@@ -37,8 +37,10 @@
 			<a class="btn" href="@env.routes.passwordChangeUrl(Implicit.ctx()._requestHeader())">Change Password</a>
 		}
 
-		<a class="btn" href="/link-result">Account Details</a>
-		<a class="btn" href="@securesocial.controllers.routes.LoginPage.logout()">Logout</a>
+		<div>
+			<a class="btn" href="/link-result">Account Details</a>
+			<a class="btn" href="@securesocial.controllers.routes.LoginPage.logout()">Logout</a>
+		</div>
 
 		<hr>
 		<span>

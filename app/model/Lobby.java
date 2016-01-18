@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import play.Logger;
 import play.libs.F;
+import play.mvc.Results;
 import play.mvc.WebSocket;
 import play.mvc.WebSocket.In;
 import play.mvc.WebSocket.Out;
@@ -124,6 +125,8 @@ public class Lobby implements UiEventListener{
 		if (offlinePlayers.contains(player)) {
 			logger.debug(player.toString() + " rejoined in time.");
 			offlinePlayers.remove(player);
+		} else if (players.size() >= 8) {
+			return WebSocket.reject(Results.badRequest("Lobby alread full."));
 		}
 		return new WebSocket<String>() {
 			@Override
