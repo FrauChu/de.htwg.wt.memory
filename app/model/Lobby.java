@@ -28,10 +28,11 @@ public class Lobby implements UiEventListener{
 	private LinkedList<String> chatHistory = new LinkedList<>();
 	private final Controller gameController;
 	private boolean needReload = false;
+	private String currentGame = "komi";
 	
 	public Lobby() {
 		gameController = Controller.getNewController();
-		gameController.loadBoard(new File("public/images/animals/game.dat"));
+		gameController.loadBoard(new File("public/images/" + currentGame + "/game.dat"));
 		gameController.addListener(this);
 	}
 	
@@ -141,6 +142,12 @@ public class Lobby implements UiEventListener{
 			logger.trace("Got keep-alive. Doing nothing.");
 		} else if (req.action.equals("chat")) {
 			addChatMessage(player, req.message);
+		} else if (req.action.equals("game")) {
+			File game = new File("public/images/" + req.message + "/game.dat");
+			if (game.isFile()) {
+				currentGame = req.message;
+				gameController.loadBoard(game);
+			}
 		} else if (req.action.equals("get")) {
 			outputChannels.get(player.getId()).write(fullStatus().asJson());
 		} else if (req.action.equals("restart")) {
@@ -184,6 +191,7 @@ public class Lobby implements UiEventListener{
 		resp.setCards(boardToField(b));
 		resp.setRound(gameController.getRoundNumber());
 		resp.setChatHistory(chatHistory);
+		resp.setGame(currentGame);
 		if (players.size() > 0 && players.size() == gameController.getPlayerCount()) {
 			resp.setCurrentPlayer(players.get(gameController.getCurrentPlayer() - 1).getName());
 			resp.setPlayerList(playerNames());

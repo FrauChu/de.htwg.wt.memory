@@ -45,15 +45,18 @@
 			<template is="dom-repeat" items="{{widthcount}}" as="j">
 				<div class="col-xs-1">
 					<template is="dom-repeat" items="{{heigthcount}}" as="i">
-						<memory-card posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
+						<memory-card game="{{game}}" posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
 					</template>
 				</div>
 			</template>
+			<div class="clearfix visible-xs-block"></div>
 			<div class="col-xs-4">
 				<chat-area id="chata"></chat-area>
 			</div>
 		</div>
-		<paper-button raised on-click="clickHandler">Restart</paper-button> <!-- -->
+		<paper-button raised on-click="clickHandler">Restart</paper-button>
+		<paper-button raised on-click="loadK">Komilitonen</paper-button>
+		<paper-button raised on-click="loadA">Tiere</paper-button>
 	</template>
 
   <script>
@@ -65,6 +68,10 @@
 			size: {
 				type: Object,
 				observer: 'reloadBoard'
+			},
+			game: {
+				type: String,
+				value: 'komis'
 			},
 			socket: {
 				type: Object,
@@ -115,7 +122,11 @@
 						this.socket.close();
 					},
 					getCard: function(x, y) {
-						return this.cards[x][y];
+						if (this.cards[x] != undefined) {
+							return this.cards[x][y];
+						} else {
+							return "_";
+						}
 					},
 					pick: function(x, y) {
 						var payload = new Object();
@@ -159,14 +170,16 @@
 			
 		},
 		checkSize: function(resp) {
-			if (!("width" in resp) || !("height" in resp)) {
-				return;
+			if (("width" in resp) || ("height" in resp)) {
+				var newsize = new Object();
+				newsize.width = resp.width;
+				newsize.height = resp.height;
+				if (!this.size || newsize.width != this.size.width || newsize.height != this.size.height) {
+					this.size = newsize;
+				}
 			}
-			var newsize = new Object();
-			newsize.width = resp.width;
-			newsize.height = resp.height;
-			if (!this.size || newsize.width != this.size.width || newsize.height != this.size.height) {
-				this.size = newsize;
+			if ("game" in resp) {
+				this.game = resp.game;
 			}
 		},
 		checkStatus: function(resp) {
@@ -237,6 +250,19 @@
 		clickHandler: function() {
 			var payload = new Object();
 			payload.action = "restart";
+			this.socket.send(JSON.stringify(payload));
+		},
+		loadK: function() {
+			this.load('komi');
+		},
+		loadA: function() {
+			this.load('animals');
+		},
+		load: function(game) {
+			console.log("Requesting game " + game);
+			var payload = new Object();
+			payload.action = "game";
+			payload.message = game;
 			this.socket.send(JSON.stringify(payload));
 		}
 	});

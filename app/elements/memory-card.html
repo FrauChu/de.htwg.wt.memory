@@ -6,7 +6,7 @@
 <link rel="import"
       href="/bower_components/paper-card/paper-card.html">
 
-<dom-module name="memory-card" attributes="posx posy memboardid">
+<dom-module name="memory-card" attributes="game posx posy memboardid">
 	<style>
 		iron-image::content img#img.iron-image.style-scope {
 			width: 100%;
@@ -37,7 +37,7 @@
 		<div class="box">
 			<div class="content">
 				<iron-image style="background-color: lightgray;"
-					preload fade src="/assets/images/animals/{{cardnumber}}.jpg"></iron-image> <!-- -->
+					preload fade src="/assets/images/{{game}}/{{cardnumber}}.jpg"></iron-image>
 			</div>
 		</div>
     </template>
@@ -62,6 +62,10 @@
 				type: String,
 				computed: 'getCard(posx, posy, reload)'
 			},
+			game: {
+				type: String,
+				value: "animals"
+			},
 			memboardid: {
 				type: String,
 				observer: 'memboardIdChanged'
@@ -85,9 +89,6 @@
 			return "";
 		},
 		ready: function() {
-			if (!this.game) {
-				this.game = "animals";
-			}
 			this.reload++;
 		},
 		clickHandler: function() {

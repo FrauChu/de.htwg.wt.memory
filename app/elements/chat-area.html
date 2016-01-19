@@ -22,6 +22,7 @@
 			max-width: 200px;
 			padding: 5px 8px 4px;
 			margin: 5px 2px 0;
+			color: #000000;
 		}
 		input {
 			padding: 5px;
@@ -84,7 +85,7 @@
 			scrollMax: function() {
 				var scroll = document.querySelector("#forAutoScroll");
 				if (scroll) {
-					scroll.scrollTop = scroll.scrollHeight;
+					scroll.scrollTop = 9999999;
 				}
 			},
 			keyHandler: function(e, detail, sender) {

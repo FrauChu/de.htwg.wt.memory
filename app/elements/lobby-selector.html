@@ -8,7 +8,6 @@
 	<style>
 		ul
 		{
-			background-color: #333333;
 			line-height: 35px;
 			margin: 0;
 			position: relative;
@@ -21,29 +20,51 @@
 		ul li
 		{
 			list-style: none;
-			color: #FFFFFF;
 			cursor: pointer;
+		}
+		ul li a
+		{
+			color: #FFFFFF;
+		}
+		ul li a:hover
+		{
+			text-decoration: none;
 		}
 		form
 		{
 			margin: 18px 0 18px;
 		}
+		paper-button {
+			padding:0;
+		}
+		paper-button::shadow .button-content {
+			padding:0;
+		}
+		paper-button button {
+			padding:8px;
+			background-color: transparent;
+			border-color: transparent;
+			font-weight: bold;
+		}
+		paper-button button::-moz-focus-inner {
+			border: 0;
+		}
 	</style>
 
     <template>
-		<form action="/play" method="get">
-			<span>Select a game to join:</span><br>
-			<ul>
-				<template is="dom-repeat" items="{{lobbys}}" as="lby">
-					<li>
-						<action-link link="{{lby}}" on-action-link-click="clickAction">{{lby}}</action-link>
-					</li>
-				</template>
-			</ul>
-			<span>Or create a new Lobby:</span><br>
-			<input is="iron-input" bind-value="{{lobby}}" name="gameName" placeholder="default">
-			<input type="submit" value="Enter">
+		<form class="form-inline" action="/play" method="get" style="width: 500px">
+			<div class="form-group">
+			    <label for="gameText">Create game:</label>
+			    <input id="gameText" is="iron-input" bind-value="{{lobby}}" name="gameName" type="text" class="form-control" placeholder="default">
+			</div>
+			<paper-button raised><button type="submit">Enter</button></paper-button>
 		</form>
+		<label for="gameList">Or select a exsisting game:</label>
+		<ul id="gameList">
+		<template is="dom-repeat" items="{{lobbys}}" as="lby">
+			<li><a href="/play?gameName={{lby}}">{{lby}}</a></li>
+		</template>
+		</ul>
     </template>
 
     <script>

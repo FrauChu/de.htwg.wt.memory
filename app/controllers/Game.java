@@ -48,15 +48,19 @@ public class Game extends Controller {
             logger.debug("access granted to play");
         }
         User user = (User) ctx().args.get(SecureSocial.USER_KEY);
-        if (!lobbys.containsKey(gameName)) {
-        	lobbys.put(gameName, new Lobby());
-        }
-    	for (String lobbyName : lobbys.keySet()) {
-    		logger.debug("Checking lobby " + lobbyName);
-    		if (!lobbyName.equals(gameName) && lobbys.get(lobbyName).containsPlayer(user))
-    			lobbys.get(lobbyName).removePlayer(user);
-    	}
-        Lobby lobby = lobbys.get(gameName);
+        Lobby lobby;
+        
+        synchronized (lobbys) {
+            if (!lobbys.containsKey(gameName)) {
+            	lobbys.put(gameName, new Lobby());
+            }
+        	for (String lobbyName : lobbys.keySet()) {
+        		logger.debug("Checking lobby " + lobbyName);
+        		if (!lobbyName.equals(gameName) && lobbys.get(lobbyName).containsPlayer(user))
+        			lobbys.get(lobbyName).removePlayer(user);
+        	}
+            lobby = lobbys.get(gameName);
+		}
         lobby.addPlayer(user);
 
         logger.info("Now " + lobby.getPlayerCount() + " Players in game " + gameName);
@@ -69,10 +73,13 @@ public class Game extends Controller {
     }
     
     private static void cleanLobbys() {
-    	for (String lobbyName : lobbys.keySet()) {
-    		if (lobbys.get(lobbyName).getPlayerCount() == 0)
-    			lobbys.remove(lobbyName);
-    	}
+    	synchronized (lobbys) {
+        	String[] lobbyNames = lobbys.keySet().toArray(new String[0]);
+        	for (String lobbyName : lobbyNames) {
+        		if (lobbys.get(lobbyName).getPlayerCount() == 0)
+        			lobbys.remove(lobbyName);
+        	}
+		}
     }
 
     @SecuredAction
@@ -82,11 +89,13 @@ public class Game extends Controller {
         if (user == null)
         	return null;
         logger.debug("User has " + user.identities.size() + " identities.");
-    	for (String gameName : lobbys.keySet()) {
-    		logger.debug("Checking lobby " + gameName);
-    		if (lobbys.get(gameName).containsPlayer(user))
-    			return lobbys.get(gameName).getSocketForPlayer(user);
-    	}
+        synchronized (lobbys) {
+        	for (String gameName : lobbys.keySet()) {
+        		logger.debug("Checking lobby " + gameName);
+        		if (lobbys.get(gameName).containsPlayer(user))
+        			return lobbys.get(gameName).getSocketForPlayer(user);
+        	}
+		}
     	logger.error("User " + user.toString() + " requested WebSocket but is not part of any game.");
     	return WebSocket.reject(Results.badRequest("Player not in any game."));
     }

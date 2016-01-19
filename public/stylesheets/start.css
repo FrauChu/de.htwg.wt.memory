@@ -1,0 +1,53 @@
+action-link {
+	
+}
+span.text {
+	padding-top: 10pt;
+}
+
+lobby-selector {
+	margin-top: 20pt;
+}
+
+p {
+    margin: 0 0 5px;
+}
+
+html body {
+	background-color: #666666;
+	color: #DDDDDD;
+}
+
+paper-button, a.btn {
+	background-color: #c30046;
+	color: #FFFFFF;
+}
+
+input {
+	color: #000000;
+}
+
+div.navbar-header.sr-only,  nav.navbar {
+	background-image: url("/assets/images/navbar.png");
+    background-repeat: no-repeat;
+	background-color: #363638;
+    font-family: georgia;
+    font-style: italic;
+}
+
+div.navbar-header  {
+	z-index: -5;
+}
+
+nav.navbar a.navbar-brand {
+	font-size: 30px;
+}
+
+nav.navbar a {
+	color: #FFFFFF !important;
+	font-size: 18px;
+}
+
+div.modal-dialog {
+	color: #000000;
+}

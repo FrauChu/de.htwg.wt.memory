@@ -59,6 +59,10 @@ public class Response {
 		data.put("round", round);
 	}
 	
+	public void setGame(String game) {
+		data.put("game", game);
+	}
+	
 	public void setChatHistory(Iterable<String> messages) {
 		LinkedList<String> toPut = new LinkedList<>();
 		for (String o : messages)
