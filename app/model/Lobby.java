@@ -29,7 +29,7 @@ public class Lobby implements UiEventListener{
 	private LinkedList<String> chatHistory = new LinkedList<>();
 	private final Controller gameController;
 	private boolean needReload = false;
-	private String currentGame = "komi";
+	private String currentGame = "animals";
 	
 	public Lobby() {
 		gameController = Controller.getNewController();

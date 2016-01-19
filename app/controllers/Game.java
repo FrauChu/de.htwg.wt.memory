@@ -45,7 +45,6 @@ public class Game extends Controller {
     @SecuredAction
     public Result getLobbys() {
     	String lobbyString = new Gson().toJson(getCurrentLobbys());
-    	System.out.println("Sending back \"" + lobbyString + "\"");
         return ok(lobbyString);
     }
 

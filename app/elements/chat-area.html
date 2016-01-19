@@ -21,7 +21,7 @@
 			border-top-right-radius: 12px;
 			max-width: 200px;
 			padding: 5px 8px 4px;
-			margin: 5px 2px 0;
+			margin: 5px 5px 0 3px;
 			color: #000000;
 		}
 		input {
@@ -36,9 +36,7 @@
 		<div class="chatwindow">
 			<div id="forAutoScroll" class="chatarea">
 				<template is="dom-repeat" items="{{messages}}" as="msg">
-					<p>
-						{{msg}}
-					</p>
+					<p>{{msg}}</p>
 				</template>
 			</div>
 			<input is="iron-input" bind-value="{{message}}" placeholder="Enter message here..." on-keypress="keyHandler">

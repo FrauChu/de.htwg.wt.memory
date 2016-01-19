@@ -11,8 +11,12 @@
 			padding-left: 4px;
 			padding-right: 4px;
 		}
-		div.col-xs-4 {
+		div.chat {
 			margin-top: -13px;
+		}
+		div.boardspacer {
+			margin-left: 5px;
+			margin-right: 5px;
 		}
 	</style>
 
@@ -42,15 +46,20 @@
 	
 		<board-status id="statusb"></board-status>
 		<div class="row">
-			<template is="dom-repeat" items="{{widthcount}}" as="j">
-				<div class="col-xs-1">
-					<template is="dom-repeat" items="{{heigthcount}}" as="i">
-						<memory-card game="{{game}}" posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
+			<div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+				<div class="row">
+					<div class="boardspacer">
+					<template is="dom-repeat" items="{{widthcount}}" as="j">
+						<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="width: {{widthpercent}}%">
+							<template is="dom-repeat" items="{{heigthcount}}" as="i">
+								<memory-card game="{{game}}" posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
+							</template>
+						</div>
 					</template>
+					</div>
 				</div>
-			</template>
-			<div class="clearfix visible-xs-block"></div>
-			<div class="col-xs-4">
+			</div>
+			<div class="chat col-sm-3 col-md-3 col-lg-3 visible-sm-block visible-md-block visible-lg-block">
 				<chat-area id="chata"></chat-area>
 			</div>
 		</div>
@@ -71,7 +80,11 @@
 			},
 			game: {
 				type: String,
-				value: 'komis'
+				value: 'animals'
+			},
+			widthpercent: {
+				type: Number,
+				computed: 'widthCalculater(size)'
 			},
 			socket: {
 				type: Object,
@@ -252,6 +265,10 @@
 			var payload = new Object();
 			payload.action = "restart";
 			this.socket.send(JSON.stringify(payload));
+		},
+		widthCalculater: function(size) {
+			if (!size || size.width == 0) { return 0; }
+			return 100 / size.width;
 		},
 		loadK: function() {
 			this.load('komi');
