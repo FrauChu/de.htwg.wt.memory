@@ -160,14 +160,14 @@
 			var chat = document.querySelector('chat-area');
 			chat.socket = this.socket;
 			this.async(function() {
-				if (document.querySelector('div.col-xs-1') == null) {
+				var someRow = document.querySelector('div.col-xs-1');
+				if (someRow == null) {
 					setTimeout(arguments.callee, 200);
 					return;
 				}
-				$('chat-area > div.chatwindow').css('height', document.querySelector('div.col-xs-1').clientHeight + "px");
-				$('chat-area > div.chatwindow > div').css('height', (document.querySelector('div.col-xs-1').clientHeight - 45) + "px");
+				$('chat-area > div.chatwindow').css('height', someRow.clientHeight + "px");
+				$('chat-area > div.chatwindow > div').css('height', (someRow.clientHeight - 45) + "px");
 			});
-			
 		},
 		checkSize: function(resp) {
 			if (("width" in resp) || ("height" in resp)) {
@@ -187,6 +187,9 @@
 			if ("round" in resp) {
 				statusboard.currentRound = resp.round;
 			}
+			if ("cardsToMatch" in resp) {
+				statusboard.cardsToMatch = resp.cardsToMatch;
+			}
 			if ("players" in resp) {
 				statusboard.players = resp.players;
 			}
@@ -202,7 +205,6 @@
 			if ("chatHistory" in resp) {
 				chatArea.messages = resp.chatHistory;
 			}
-			//chatArea.scrollMax();
 		},
 		checkAction: function(resp) {
 			if (!("actions" in resp)) {
@@ -212,7 +214,6 @@
 				action = resp.actions[i]
 				console.log("Processing action " + action.action);
 				if (action.action == "end") {
-					var overview = "Game has ended.";
 					this.roundsPlayed = action.rounds;
 					this.gameResult = []
 					for (j in action.playerScores) {

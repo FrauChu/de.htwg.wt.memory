@@ -3,7 +3,7 @@
 @import securesocial.core.AuthenticationMethod._
 @import Http.Context.Implicit
 
-@main("Welcome Page") {
+@main("Memory") {
 	<link rel="import" href="/elements/memory-board.html">
 	<div class="page-header">
 		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Welcome @user.main.firstName.getOrElse{@user.main.fullName.getOrElse{User}}</h2>

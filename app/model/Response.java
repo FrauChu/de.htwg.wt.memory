@@ -19,6 +19,10 @@ public class Response {
 		data.put("height", height);
 	}
 	
+	public void setCardsToMatch(int cardsToMatch) {
+		data.put("cardsToMatch", cardsToMatch);
+	}
+	
 	public void setCards(String[][] cards) {
 		data.put("cards", cards);
 	}

@@ -5,10 +5,22 @@
 		li.bold {
 			font-weight: bold;
 		}
+		td {
+			border-right: 8px solid transparent;
+		}
 	</style>
 
 	<template>
-		<span>Current round: {{currentRound}}</span>
+		<table>
+			<tr>
+				<td>Current round:</td>
+				<td>{{currentRound}}</td>
+			</tr>
+			<tr>
+				<td>Cards to match:</td>
+				<td>{{cardsToMatch}}</td>
+			</tr>
+		</table>
 		<div class="players">
 			<span>Players in game:</span>
 			<ul>
@@ -26,6 +38,10 @@
 				currentRound: {
 					type: Number,
 					value: 0
+				},
+				cardsToMatch: {
+					type: Number,
+					value: 2
 				},
 				players: {
 					type: Array,

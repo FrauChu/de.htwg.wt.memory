@@ -16,6 +16,7 @@ import securesocial.core.java.SecuredAction;
 import service.User;
 import views.RenderService;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 
 public class Game extends Controller {
@@ -39,6 +40,13 @@ public class Game extends Controller {
     public static List<String> getCurrentLobbys() {
     	cleanLobbys();
     	return new ArrayList<>(lobbys.keySet());
+    }
+
+    @SecuredAction
+    public Result getLobbys() {
+    	String lobbyString = new Gson().toJson(getCurrentLobbys());
+    	System.out.println("Sending back \"" + lobbyString + "\"");
+        return ok(lobbyString);
     }
 
     @SecuredAction
@@ -87,7 +95,7 @@ public class Game extends Controller {
     	logger.debug("Get socket called");
         User user = (User) SecureSocial.currentUser(env).get(100);
         if (user == null)
-        	return null;
+        	return WebSocket.reject(Results.unauthorized("Player not autenthicated."));
         logger.debug("User has " + user.identities.size() + " identities.");
         synchronized (lobbys) {
         	for (String gameName : lobbys.keySet()) {

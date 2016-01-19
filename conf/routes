@@ -4,6 +4,7 @@
 
 # Home page
 GET        /                    @controllers.Application.index
+GET        /lobbys              @controllers.Game.getLobbys
 GET        /socket              @controllers.Game.getSocket
 GET        /play                @controllers.Game.play(gameName: String ?= "")
 GET        /userAware           @controllers.Application.userAware

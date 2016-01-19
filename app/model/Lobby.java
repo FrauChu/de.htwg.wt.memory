@@ -17,6 +17,7 @@ import play.mvc.WebSocket.Out;
 import service.User;
 import de.htwg.memory.entities.Board;
 import de.htwg.memory.logic.Controller;
+import de.htwg.memory.logic.SettingUtil;
 import de.htwg.memory.logic.UiEventListener;
 
 public class Lobby implements UiEventListener{
@@ -188,6 +189,7 @@ public class Lobby implements UiEventListener{
 		Response resp = new Response();
 		Board b = gameController.getBoard();
 		resp.setSize(b.getWidth(), b.getHeight());
+		resp.setCardsToMatch(SettingUtil.getNumberOfCardsToMatch());
 		resp.setCards(boardToField(b));
 		resp.setRound(gameController.getRoundNumber());
 		resp.setChatHistory(chatHistory);

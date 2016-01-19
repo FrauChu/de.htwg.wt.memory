@@ -1,11 +1,32 @@
 @(user: service.User, env: securesocial.core.RuntimeEnvironment)
 @import securesocial.core.IdentityProvider
 @import securesocial.core.AuthenticationMethod._
-@import controllers.Game
 @import Http.Context.Implicit
 
 @main("Welcome Page") {
-	<link rel="import" href="/elements/lobby-selector.html">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script src="/assets/javascript/a-lobby.js"></script>
+	<link rel="import" href="/bower_components/paper-button/paper-button.html">
+	<style>
+		paper-button {
+			padding:0;
+		}
+		paper-button::shadow .button-content {
+			padding:0;
+		}
+		paper-button button {
+			padding:8px;
+			background-color: transparent;
+			border-color: transparent;
+			font-weight: bold;
+		}
+		paper-button button::-moz-focus-inner {
+			border: 0;
+		}
+		#gameList {
+			padding-top: 6px;
+		}
+	</style>
 
 	<div class="page-header">
 		<h2><img src="@user.main.avatarUrl" alt="@user.main.fullName" width="40px" height="40px"/> Hello @user.main.firstName.getOrElse{@user.main.fullName.getOrElse{}}</h2>
@@ -20,7 +41,28 @@
 			<p>Selected cards are revealed, if the match is correct they stay open, else they will be hidden again.</p>
 			<p>The game ends if all card pairs are found.</p>
 		</span>
-		<lobby-selector></lobby-selector>
+		
+		<form class="form-inline" action="/play" method="get" style="width: 500px">
+			<div class="form-group">
+			    <label for="gameText">Create or join game:</label>
+			    <input id="gameText" is="iron-input" bind-value="{{lobby}}" name="gameName" type="text" class="form-control" placeholder="default">
+			</div>
+			<paper-button raised><button type="submit">Enter</button></paper-button>
+		</form>
+		<div ng-app="lobbyModule">
+			<div ng-controller="LobbyController">
+				<div ng-if="hasLobbies" class=animate-if">
+					<label for="gameList">Or select a exsisting game:</label>
+		            <div id="gameList" class="row">
+		                <div class="btn-group-vertical col-xs-offset-1 col-xs-4" role="group">
+		                    <a href="/play?gameName={{lobby}}" class="list-group-item" ng-repeat="lobby in lobbies">{{lobby}}</a>
+		                </div>
+		            </div>
+	            </div>
+			</div>
+		</div>
+		
+		<!-- <lobby-selector></lobby-selector> -->
 
 		<hr>
 
@@ -39,20 +81,4 @@
 			}
 		</span>
 	</div>
-	<script>
-		(function() {
-			if (document.querySelector("lobby-selector").lobby == undefined) {
-				setTimeout(arguments.callee, 200);
-				return;
-			}
-			var lobbys = "@controllers.Game.getCurrentLobbys()";
-			if (lobbys != "[]") {
-				lobbys = lobbys.replace(", ", "\", \"");
-				lobbys = lobbys.replace("[", "[\"");
-				lobbys = lobbys.replace("]", "\"]");
-			}
-			document.querySelector("lobby-selector").lobbys = JSON.parse(lobbys);
-			console.log("Lobbys set to " + lobbys);
-		})();
-	</script>
 }
