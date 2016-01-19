@@ -15,6 +15,13 @@
 		<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
 		<link rel="import" href="/elements/memory-board.html">
+		<script>
+			function postLoadScript(src) {
+				var script = document.createElement("script");
+				script.src = "/assets/" + src;
+				document.head.appendChild(script);
+			}
+		</script>
     </head>
     <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
