@@ -18,6 +18,10 @@
 			margin-left: 5px;
 			margin-right: 5px;
 		}
+		div.boardspacer {
+			margin-left: 5px;
+			margin-right: 5px;
+		}
 	</style>
 
 	<template id="memboard">
@@ -50,7 +54,7 @@
 				<div class="row">
 					<div class="boardspacer">
 					<template is="dom-repeat" items="{{widthcount}}" as="j">
-						<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="width: {{widthpercent}}%">
+						<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style$="width: {{widthpercent}}%">
 							<template is="dom-repeat" items="{{heigthcount}}" as="i">
 								<memory-card game="{{game}}" posx="{{i}}" posy="{{j}}" memboardId="{{id}}"></memory-card>
 							</template>
@@ -172,6 +176,9 @@
 			this.socket.init();
 			var chat = document.querySelector('chat-area');
 			chat.socket = this.socket;
+			this.setChatHeight();
+		},
+		setChatHeight: function() {
 			this.async(function() {
 				var someRow = document.querySelector('div.col-xs-1');
 				if (someRow == null) {
@@ -260,6 +267,7 @@
 			for (var i = 0, element; element = cards[i]; i++) {
 				element.reload++;
 			}
+			this.setChatHeight();
 		},
 		clickHandler: function() {
 			var payload = new Object();
